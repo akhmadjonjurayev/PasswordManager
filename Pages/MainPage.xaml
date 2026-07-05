@@ -1,0 +1,840 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage
+    x:Class="PasswordManager.Pages.MainPage"
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    BackgroundColor="{StaticResource AppBackground}"
+    NavigationPage.HasNavigationBar="False">
+
+    <Grid ColumnDefinitions="260,*">
+
+        <!-- ═══════════════════════════════════════════════════════════
+             SIDEBAR
+        ════════════════════════════════════════════════════════════ -->
+        <Grid Grid.Column="0"
+              BackgroundColor="{StaticResource SidebarBg}"
+              RowDefinitions="Auto,*,Auto">
+
+            <!-- Top: Logo + User -->
+            <VerticalStackLayout Grid.Row="0" Spacing="0" Padding="20,28,20,16">
+
+                <!-- App name -->
+                <HorizontalStackLayout Spacing="10" Margin="0,0,0,28">
+                    <Border Background="{StaticResource AccentPrimary}"
+                            StrokeShape="RoundRectangle 10"
+                            Stroke="Transparent"
+                            WidthRequest="36" HeightRequest="36">
+                        <Label Text="🔐" FontSize="17"
+                               HorizontalOptions="Center"
+                               VerticalOptions="Center" />
+                    </Border>
+                    <Label Text="SecureVault"
+                           FontSize="17"
+                           FontAttributes="Bold"
+                           TextColor="{StaticResource TextPrimary}"
+                           VerticalOptions="Center" />
+                </HorizontalStackLayout>
+
+                <!-- User avatar + info -->
+                <HorizontalStackLayout Spacing="12" Margin="0,0,0,24">
+                    <Border Background="{StaticResource AccentPrimary}"
+                            StrokeShape="RoundRectangle 20"
+                            Stroke="Transparent"
+                            WidthRequest="40" HeightRequest="40">
+                        <Label x:Name="InitialsLabel"
+                               Text="AB"
+                               FontSize="14"
+                               FontAttributes="Bold"
+                               TextColor="White"
+                               HorizontalOptions="Center"
+                               VerticalOptions="Center" />
+                    </Border>
+                    <VerticalStackLayout Spacing="2" VerticalOptions="Center">
+                        <Label x:Name="UserNameLabel"
+                               Text="Foydalanuvchi"
+                               FontSize="14"
+                               FontAttributes="Bold"
+                               TextColor="{StaticResource TextPrimary}" />
+                        <Label Text="Asosiy hisob"
+                               FontSize="11"
+                               TextColor="{StaticResource TextMuted}" />
+                    </VerticalStackLayout>
+                </HorizontalStackLayout>
+
+                <!-- Divider -->
+                <BoxView HeightRequest="1"
+                         Color="{StaticResource BorderColor}"
+                         Margin="0,0,0,16" />
+            </VerticalStackLayout>
+
+            <!-- Navigation items (scrollable to support many folders) -->
+            <ScrollView Grid.Row="1" VerticalScrollBarVisibility="Default">
+                <VerticalStackLayout Spacing="4" Padding="12,0,12,8">
+
+                    <!-- Hammasi (all passwords) -->
+                    <Border x:Name="NavPasswords"
+                            Background="{StaticResource NavItemActive}"
+                            StrokeShape="RoundRectangle 10"
+                            Stroke="Transparent"
+                            Padding="14,11">
+                        <HorizontalStackLayout Spacing="12">
+                            <Label Text="🔑" FontSize="15" VerticalOptions="Center" />
+                            <Label Text="Hammasi"
+                                   FontSize="14"
+                                   FontAttributes="Bold"
+                                   TextColor="{StaticResource TextPrimary}"
+                                   VerticalOptions="Center" />
+                        </HorizontalStackLayout>
+                        <Border.GestureRecognizers>
+                            <TapGestureRecognizer Tapped="OnNavPasswords_Tapped" />
+                        </Border.GestureRecognizers>
+                    </Border>
+
+                    <!-- PAPKALAR section header -->
+                    <Grid ColumnDefinitions="*,Auto"
+                          Padding="10,0,2,0"
+                          Margin="0,10,0,2">
+                        <Label Text="PAPKALAR"
+                               FontSize="10"
+                               FontAttributes="Bold"
+                               TextColor="{StaticResource TextMuted}"
+                               VerticalOptions="Center" />
+                        <Button Grid.Column="1"
+                                Text="＋"
+                                TextColor="{StaticResource AccentLight}"
+                                BackgroundColor="Transparent"
+                                BorderWidth="0"
+                                HeightRequest="28"
+                                WidthRequest="28"
+                                Padding="0"
+                                FontSize="16"
+                                VerticalOptions="Center"
+                                Clicked="OnAddFolder_Clicked" />
+                    </Grid>
+
+                    <!-- Dynamic folder items injected from code-behind -->
+                    <VerticalStackLayout x:Name="FolderNavContainer" Spacing="2" />
+
+                    <!-- Servers nav item -->
+                    <Border x:Name="NavServers"
+                            Background="Transparent"
+                            StrokeShape="RoundRectangle 10"
+                            Stroke="Transparent"
+                            Padding="14,11"
+                            Margin="0,6,0,0">
+                        <HorizontalStackLayout Spacing="12">
+                            <Label Text="S" FontSize="15" VerticalOptions="Center"
+                                   TextColor="{StaticResource TextSecondary}" />
+                            <Label Text="Serverlar"
+                                   FontSize="14"
+                                   TextColor="{StaticResource TextSecondary}"
+                                   VerticalOptions="Center" />
+                        </HorizontalStackLayout>
+                        <Border.GestureRecognizers>
+                            <TapGestureRecognizer Tapped="OnNavServers_Tapped" />
+                        </Border.GestureRecognizers>
+                    </Border>
+
+                    <!-- Divider -->
+                    <BoxView HeightRequest="1"
+                             Color="{StaticResource BorderColor}"
+                             Margin="2,8,2,4" />
+
+                    <!-- Generator nav item -->
+                    <Border x:Name="NavGenerator"
+                            Background="Transparent"
+                            StrokeShape="RoundRectangle 10"
+                            Stroke="Transparent"
+                            Padding="14,11">
+                        <HorizontalStackLayout Spacing="12">
+                            <Label Text="⚡" FontSize="15" VerticalOptions="Center" />
+                            <Label Text="Parol generator"
+                                   FontSize="14"
+                                   TextColor="{StaticResource TextSecondary}"
+                                   VerticalOptions="Center" />
+                        </HorizontalStackLayout>
+                        <Border.GestureRecognizers>
+                            <TapGestureRecognizer Tapped="OnNavGenerator_Tapped" />
+                        </Border.GestureRecognizers>
+                    </Border>
+
+                    <!-- Backup nav item -->
+                    <Border x:Name="NavBackup"
+                            Background="Transparent"
+                            StrokeShape="RoundRectangle 10"
+                            Stroke="Transparent"
+                            Padding="14,11">
+                        <HorizontalStackLayout Spacing="12">
+                            <Label Text="📦" FontSize="15" VerticalOptions="Center" />
+                            <Label Text="Zaxira nusxa"
+                                   FontSize="14"
+                                   TextColor="{StaticResource TextSecondary}"
+                                   VerticalOptions="Center" />
+                        </HorizontalStackLayout>
+                        <Border.GestureRecognizers>
+                            <TapGestureRecognizer Tapped="OnNavBackup_Tapped" />
+                        </Border.GestureRecognizers>
+                    </Border>
+
+                </VerticalStackLayout>
+            </ScrollView>
+
+            <!-- Bottom: Lock button -->
+            <VerticalStackLayout Grid.Row="2" Padding="12,16">
+                <BoxView HeightRequest="1" Color="{StaticResource BorderColor}" Margin="0,0,0,12" />
+                <Border Background="Transparent"
+                        StrokeShape="RoundRectangle 10"
+                        Stroke="Transparent"
+                        Padding="14,11">
+                    <HorizontalStackLayout Spacing="12">
+                        <Label Text="🔒" FontSize="15" VerticalOptions="Center" />
+                        <Label Text="Qulflash"
+                               FontSize="14"
+                               TextColor="{StaticResource TextMuted}"
+                               VerticalOptions="Center" />
+                    </HorizontalStackLayout>
+                    <Border.GestureRecognizers>
+                        <TapGestureRecognizer Tapped="OnLock_Tapped" />
+                    </Border.GestureRecognizers>
+                </Border>
+            </VerticalStackLayout>
+
+        </Grid>
+
+        <!-- ═══════════════════════════════════════════════════════════
+             CONTENT AREA
+        ════════════════════════════════════════════════════════════ -->
+        <Grid Grid.Column="1"
+              BackgroundColor="{StaticResource ContentBg}"
+              RowDefinitions="Auto,*">
+
+            <!-- Top bar (thin accent line) -->
+            <BoxView Grid.RowSpan="2"
+                     WidthRequest="1"
+                     HorizontalOptions="Start"
+                     VerticalOptions="Fill"
+                     Color="{StaticResource BorderColor}" />
+
+            <!-- ── PASSWORDS VIEW ────────────────────────────────── -->
+            <Grid x:Name="PasswordsView"
+                  Grid.RowSpan="2"
+                  RowDefinitions="Auto,*"
+                  IsVisible="True">
+
+                <!-- Header bar -->
+                <Grid Grid.Row="0"
+                      ColumnDefinitions="*,Auto"
+                      Padding="32,28,32,20"
+                      BackgroundColor="{StaticResource ContentBg}">
+
+                    <VerticalStackLayout Grid.Column="0" Spacing="2">
+                        <Label x:Name="PasswordsHeaderLabel"
+                               Text="Parollar"
+                               Style="{StaticResource HeadingStyle}"
+                               FontSize="24" />
+                        <Label x:Name="EntryCountLabel"
+                               Text="0 ta yozuv"
+                               Style="{StaticResource SubheadingStyle}" />
+                    </VerticalStackLayout>
+
+                    <Button Grid.Column="1"
+                            Text="＋  Yangi parol"
+                            Style="{StaticResource PrimaryButtonStyle}"
+                            Clicked="OnAddPassword_Clicked"
+                            VerticalOptions="Center" />
+                </Grid>
+
+                <!-- Search + list -->
+                <Grid Grid.Row="1" RowDefinitions="Auto,*" Padding="32,0,32,24">
+
+                    <!-- Search bar -->
+                    <Border Grid.Row="0"
+                            Background="{StaticResource CardBg}"
+                            StrokeShape="RoundRectangle 10"
+                            Stroke="{StaticResource BorderColor}"
+                            Padding="16,0"
+                            Margin="0,0,0,20">
+                        <Grid ColumnDefinitions="Auto,*">
+                            <Label Grid.Column="0"
+                                   Text="🔍"
+                                   FontSize="15"
+                                   VerticalOptions="Center"
+                                   Margin="0,0,10,0" />
+                            <Entry Grid.Column="1"
+                                   x:Name="SearchEntry"
+                                   Placeholder="Xizmat nomini qidiring..."
+                                   PlaceholderColor="{StaticResource TextMuted}"
+                                   TextColor="{StaticResource TextPrimary}"
+                                   BackgroundColor="Transparent"
+                                   FontSize="14"
+                                   HeightRequest="48"
+                                   TextChanged="OnSearch_Changed" />
+                        </Grid>
+                    </Border>
+
+                    <!-- Password list -->
+                    <CollectionView Grid.Row="1"
+                                    x:Name="PasswordList"
+                                    ItemsSource="{Binding}"
+                                    SelectionMode="None">
+                        <CollectionView.EmptyView>
+                            <VerticalStackLayout HorizontalOptions="Center"
+                                                 VerticalOptions="Center"
+                                                 Spacing="12"
+                                                 Padding="0,60">
+                                <Label Text="🔐"
+                                       FontSize="48"
+                                       HorizontalOptions="Center" />
+                                <Label Text="Hali parol saqlanmagan"
+                                       FontSize="16"
+                                       TextColor="{StaticResource TextSecondary}"
+                                       HorizontalOptions="Center" />
+                                <Label Text="Yuqoridagi tugmani bosib yangi parol qo'shing"
+                                       FontSize="13"
+                                       TextColor="{StaticResource TextMuted}"
+                                       HorizontalOptions="Center" />
+                            </VerticalStackLayout>
+                        </CollectionView.EmptyView>
+                        <CollectionView.ItemTemplate>
+                            <DataTemplate>
+                                <Border Style="{StaticResource CardStyle}"
+                                        Margin="0,0,0,10">
+                                    <Grid ColumnDefinitions="Auto,*,Auto,Auto,Auto"
+                                          ColumnSpacing="12">
+
+                                        <!-- Service icon -->
+                                        <Border Grid.Column="0"
+                                                Background="{StaticResource NavItemActive}"
+                                                StrokeShape="RoundRectangle 10"
+                                                Stroke="Transparent"
+                                                WidthRequest="44" HeightRequest="44">
+                                            <Label Text="🌐"
+                                                   FontSize="18"
+                                                   HorizontalOptions="Center"
+                                                   VerticalOptions="Center" />
+                                        </Border>
+
+                                        <!-- Service info -->
+                                        <VerticalStackLayout Grid.Column="1" Spacing="4" VerticalOptions="Center">
+                                            <Label Text="{Binding ServiceName}"
+                                                   FontSize="15"
+                                                   FontAttributes="Bold"
+                                                   TextColor="{StaticResource TextPrimary}" />
+                                            <HorizontalStackLayout Spacing="8">
+                                                <Border IsVisible="{Binding HasUsername}"
+                                                        Background="#1A2040"
+                                                        StrokeShape="RoundRectangle 4"
+                                                        Stroke="Transparent"
+                                                        Padding="6,2">
+                                                    <Label Text="👤 Login"
+                                                           FontSize="11"
+                                                           TextColor="{StaticResource AccentLight}" />
+                                                </Border>
+                                                <Border IsVisible="{Binding HasEmail}"
+                                                        Background="#1A2540"
+                                                        StrokeShape="RoundRectangle 4"
+                                                        Stroke="Transparent"
+                                                        Padding="6,2">
+                                                    <Label Text="📧 Email"
+                                                           FontSize="11"
+                                                           TextColor="{StaticResource Info}" />
+                                                </Border>
+                                                <Border IsVisible="{Binding HasPhone}"
+                                                        Background="#1A2540"
+                                                        StrokeShape="RoundRectangle 4"
+                                                        Stroke="Transparent"
+                                                        Padding="6,2">
+                                                    <Label Text="📱 Tel"
+                                                           FontSize="11"
+                                                           TextColor="{StaticResource Success}" />
+                                                </Border>
+                                            </HorizontalStackLayout>
+                                        </VerticalStackLayout>
+
+                                        <!-- View button -->
+                                        <Button Grid.Column="2"
+                                                Text="👁"
+                                                Style="{StaticResource IconButtonStyle}"
+                                                CommandParameter="{Binding Id}"
+                                                Clicked="OnViewEntry_Clicked" />
+
+                                        <!-- Edit button -->
+                                        <Button Grid.Column="3"
+                                                Text="✏️"
+                                                Style="{StaticResource IconButtonStyle}"
+                                                CommandParameter="{Binding Id}"
+                                                Clicked="OnEditEntry_Clicked" />
+
+                                        <!-- Delete button -->
+                                        <Button Grid.Column="4"
+                                                Text="🗑"
+                                                Style="{StaticResource IconButtonStyle}"
+                                                TextColor="{StaticResource Danger}"
+                                                CommandParameter="{Binding Id}"
+                                                Clicked="OnDeleteEntry_Clicked" />
+
+                                    </Grid>
+                                </Border>
+                            </DataTemplate>
+                        </CollectionView.ItemTemplate>
+                    </CollectionView>
+                </Grid>
+            </Grid>
+
+            <!-- ── GENERATOR VIEW ────────────────────────────────── -->
+            <ScrollView x:Name="GeneratorView"
+                        Grid.RowSpan="2"
+                        IsVisible="False"
+                        Padding="32,28">
+                <VerticalStackLayout Spacing="24" MaximumWidthRequest="680">
+
+                    <Label Text="Parol generator"
+                           Style="{StaticResource HeadingStyle}"
+                           FontSize="24"
+                           Margin="0,0,0,4" />
+
+                    <!-- Generated password display -->
+                    <Border Style="{StaticResource CardStyle}">
+                        <VerticalStackLayout Spacing="16">
+                            <Label Text="YARATILGAN PAROL"
+                                   Style="{StaticResource LabelStyle}" />
+                            <Border Background="{StaticResource InputBg}"
+                                    StrokeShape="RoundRectangle 8"
+                                    Stroke="{StaticResource BorderColor}"
+                                    Padding="16,14">
+                                <Grid ColumnDefinitions="*,Auto">
+                                    <Label x:Name="GeneratedPasswordLabel"
+                                           Grid.Column="0"
+                                           Text="Pastda sozlamalarni belgilab, 'Yaratish' tugmasini bosing"
+                                           FontSize="16"
+                                           TextColor="{StaticResource TextSecondary}"
+                                           FontFamily="OpenSansRegular"
+                                           VerticalOptions="Center" />
+                                    <Button Grid.Column="1"
+                                            Text="📋"
+                                            Style="{StaticResource IconButtonStyle}"
+                                            Clicked="OnCopyGenerated_Clicked"
+                                            ToolTipProperties.Text="Nusxalash" />
+                                </Grid>
+                            </Border>
+
+                            <!-- Strength display -->
+                            <Grid ColumnDefinitions="*,*,*,*" ColumnSpacing="4">
+                                <BoxView x:Name="GenStrength1" Grid.Column="0" HeightRequest="4" Color="{StaticResource BorderColor}" CornerRadius="2" />
+                                <BoxView x:Name="GenStrength2" Grid.Column="1" HeightRequest="4" Color="{StaticResource BorderColor}" CornerRadius="2" />
+                                <BoxView x:Name="GenStrength3" Grid.Column="2" HeightRequest="4" Color="{StaticResource BorderColor}" CornerRadius="2" />
+                                <BoxView x:Name="GenStrength4" Grid.Column="3" HeightRequest="4" Color="{StaticResource BorderColor}" CornerRadius="2" />
+                            </Grid>
+                        </VerticalStackLayout>
+                    </Border>
+
+                    <!-- Settings card -->
+                    <Border Style="{StaticResource CardStyle}">
+                        <VerticalStackLayout Spacing="24">
+
+                            <!-- Length -->
+                            <VerticalStackLayout Spacing="10">
+                                <Grid ColumnDefinitions="*,Auto">
+                                    <Label Grid.Column="0"
+                                           Text="UZUNLIK"
+                                           Style="{StaticResource LabelStyle}" />
+                                    <Border Grid.Column="1"
+                                            Background="{StaticResource AccentPrimary}"
+                                            StrokeShape="RoundRectangle 6"
+                                            Stroke="Transparent"
+                                            Padding="10,4">
+                                        <Label x:Name="LengthValueLabel"
+                                               Text="16"
+                                               FontSize="13"
+                                               FontAttributes="Bold"
+                                               TextColor="White" />
+                                    </Border>
+                                </Grid>
+                                <Slider x:Name="LengthSlider"
+                                        Minimum="8"
+                                        Maximum="64"
+                                        Value="16"
+                                        ThumbColor="{StaticResource AccentPrimary}"
+                                        MinimumTrackColor="{StaticResource AccentPrimary}"
+                                        MaximumTrackColor="{StaticResource BorderColor}"
+                                        ValueChanged="OnLengthChanged" />
+                                <Grid ColumnDefinitions="*,*">
+                                    <Label Grid.Column="0" Text="8" FontSize="11" TextColor="{StaticResource TextMuted}" />
+                                    <Label Grid.Column="1" Text="64" FontSize="11" TextColor="{StaticResource TextMuted}" HorizontalOptions="End" />
+                                </Grid>
+                            </VerticalStackLayout>
+
+                            <BoxView HeightRequest="1" Color="{StaticResource BorderColor}" />
+
+                            <!-- Character types -->
+                            <VerticalStackLayout Spacing="12">
+                                <Label Text="BELGI TURLARI" Style="{StaticResource LabelStyle}" />
+
+                                <Grid ColumnDefinitions="Auto,*" RowDefinitions="Auto,Auto,Auto,Auto"
+                                      RowSpacing="12" ColumnSpacing="12">
+
+                                    <CheckBox Grid.Row="0" Grid.Column="0"
+                                              x:Name="UppercaseCheck"
+                                              IsChecked="True"
+                                              Color="{StaticResource AccentPrimary}" />
+                                    <VerticalStackLayout Grid.Row="0" Grid.Column="1" Spacing="2" VerticalOptions="Center">
+                                        <Label Text="Katta harflar (A-Z)" FontSize="14" TextColor="{StaticResource TextPrimary}" />
+                                        <Label Text="ABCDEFGHIJKLMNOPQRSTUVWXYZ" FontSize="11" TextColor="{StaticResource TextMuted}" />
+                                    </VerticalStackLayout>
+
+                                    <CheckBox Grid.Row="1" Grid.Column="0"
+                                              x:Name="LowercaseCheck"
+                                              IsChecked="True"
+                                              Color="{StaticResource AccentPrimary}" />
+                                    <VerticalStackLayout Grid.Row="1" Grid.Column="1" Spacing="2" VerticalOptions="Center">
+                                        <Label Text="Kichik harflar (a-z)" FontSize="14" TextColor="{StaticResource TextPrimary}" />
+                                        <Label Text="abcdefghijklmnopqrstuvwxyz" FontSize="11" TextColor="{StaticResource TextMuted}" />
+                                    </VerticalStackLayout>
+
+                                    <CheckBox Grid.Row="2" Grid.Column="0"
+                                              x:Name="DigitsCheck"
+                                              IsChecked="True"
+                                              Color="{StaticResource AccentPrimary}" />
+                                    <VerticalStackLayout Grid.Row="2" Grid.Column="1" Spacing="2" VerticalOptions="Center">
+                                        <Label Text="Raqamlar (0-9)" FontSize="14" TextColor="{StaticResource TextPrimary}" />
+                                        <Label Text="0123456789" FontSize="11" TextColor="{StaticResource TextMuted}" />
+                                    </VerticalStackLayout>
+
+                                    <CheckBox Grid.Row="3" Grid.Column="0"
+                                              x:Name="SymbolsCheck"
+                                              IsChecked="False"
+                                              Color="{StaticResource AccentPrimary}" />
+                                    <VerticalStackLayout Grid.Row="3" Grid.Column="1" Spacing="2" VerticalOptions="Center">
+                                        <Label Text="Maxsus belgilar" FontSize="14" TextColor="{StaticResource TextPrimary}" />
+                                        <Label Text="!@#$%^&amp;*()_+-=[]{}|;:,.?/" FontSize="11" TextColor="{StaticResource TextMuted}" />
+                                    </VerticalStackLayout>
+
+                                </Grid>
+                            </VerticalStackLayout>
+
+                            <BoxView HeightRequest="1" Color="{StaticResource BorderColor}" />
+
+                            <!-- Keywords -->
+                            <VerticalStackLayout Spacing="10">
+                                <Label Text="KALIT SO'ZLAR (ixtiyoriy)" Style="{StaticResource LabelStyle}" />
+                                <Label Text="Parolga qo'shilishi kerak bo'lgan so'zlar — vergul bilan ajrating"
+                                       FontSize="12" TextColor="{StaticResource TextMuted}" />
+                                <Border Background="{StaticResource InputBg}"
+                                        StrokeShape="RoundRectangle 8"
+                                        Stroke="{StaticResource BorderColor}"
+                                        Padding="14,0">
+                                    <Entry x:Name="KeywordsEntry"
+                                           Style="{StaticResource InputStyle}"
+                                           Placeholder="misol, Ali, 2024"
+                                           PlaceholderColor="{StaticResource TextMuted}" />
+                                </Border>
+                            </VerticalStackLayout>
+
+                            <!-- Generate button -->
+                            <Button Text="⚡  Parol yaratish"
+                                    Style="{StaticResource PrimaryButtonStyle}"
+                                    Clicked="OnGenerate_Clicked"
+                                    HorizontalOptions="Fill" />
+
+                        </VerticalStackLayout>
+                    </Border>
+
+                </VerticalStackLayout>
+            </ScrollView>
+
+            <!-- ── BACKUP VIEW ───────────────────────────────────── -->
+            <ScrollView x:Name="BackupView"
+                        Grid.RowSpan="2"
+                        IsVisible="False"
+                        Padding="32,28">
+                <VerticalStackLayout Spacing="24" MaximumWidthRequest="680">
+
+                    <Label Text="Zaxira nusxa"
+                           Style="{StaticResource HeadingStyle}"
+                           FontSize="24"
+                           Margin="0,0,0,4" />
+
+                    <!-- ── EXPORT ── -->
+                    <Border Style="{StaticResource CardStyle}">
+                        <VerticalStackLayout Spacing="16">
+
+                            <HorizontalStackLayout Spacing="10">
+                                <Label Text="📤" FontSize="20" VerticalOptions="Center" />
+                                <VerticalStackLayout Spacing="2" VerticalOptions="Center">
+                                    <Label Text="EKSPORT" Style="{StaticResource LabelStyle}" />
+                                    <Label Text="Barcha parollar yangi parol bilan shifrlangan JSON faylga saqlanadi"
+                                           Style="{StaticResource SubheadingStyle}" FontSize="12" />
+                                </VerticalStackLayout>
+                            </HorizontalStackLayout>
+
+                            <BoxView HeightRequest="1" Color="{StaticResource BorderColor}" />
+
+                            <Label Text="EKSPORT PAROLI" Style="{StaticResource LabelStyle}" Margin="0,0,0,4" />
+                            <Border Background="{StaticResource InputBg}"
+                                    StrokeShape="RoundRectangle 8"
+                                    Stroke="{StaticResource BorderColor}"
+                                    Padding="14,0">
+                                <Grid ColumnDefinitions="*,Auto">
+                                    <Entry x:Name="ExportPasswordEntry"
+                                           Grid.Column="0"
+                                           Style="{StaticResource InputStyle}"
+                                           Placeholder="Eksport uchun yangi parol (min 6 belgi)"
+                                           IsPassword="True" />
+                                    <Button Grid.Column="1"
+                                            x:Name="ToggleExportPwBtn"
+                                            Text="👁"
+                                            Style="{StaticResource IconButtonStyle}"
+                                            Clicked="OnToggleExportPw_Clicked" />
+                                </Grid>
+                            </Border>
+
+                            <Button Text="📤  Eksportga chiqarish"
+                                    Style="{StaticResource PrimaryButtonStyle}"
+                                    Clicked="OnExport_Clicked" />
+
+                            <Label x:Name="ExportStatusLabel"
+                                   Text=""
+                                   FontSize="13"
+                                   HorizontalOptions="Start"
+                                   LineBreakMode="WordWrap" />
+
+                        </VerticalStackLayout>
+                    </Border>
+
+                    <!-- ── IMPORT ── -->
+                    <Border Style="{StaticResource CardStyle}">
+                        <VerticalStackLayout Spacing="16">
+
+                            <HorizontalStackLayout Spacing="10">
+                                <Label Text="📥" FontSize="20" VerticalOptions="Center" />
+                                <VerticalStackLayout Spacing="2" VerticalOptions="Center">
+                                    <Label Text="IMPORT" Style="{StaticResource LabelStyle}" />
+                                    <Label Text="Ilgari eksport qilingan .svault fayldan parollarni qaytarish"
+                                           Style="{StaticResource SubheadingStyle}" FontSize="12" />
+                                </VerticalStackLayout>
+                            </HorizontalStackLayout>
+
+                            <BoxView HeightRequest="1" Color="{StaticResource BorderColor}" />
+
+                            <Label Text="FAYL" Style="{StaticResource LabelStyle}" Margin="0,0,0,4" />
+                            <Grid ColumnDefinitions="*,Auto" ColumnSpacing="10">
+                                <Border Grid.Column="0"
+                                        Background="{StaticResource InputBg}"
+                                        StrokeShape="RoundRectangle 8"
+                                        Stroke="{StaticResource BorderColor}"
+                                        Padding="14,0">
+                                    <Entry x:Name="ImportFilePathEntry"
+                                           Style="{StaticResource InputStyle}"
+                                           Placeholder="Fayl tanlang yoki yo'lni yozing..."
+                                           IsReadOnly="True" />
+                                </Border>
+                                <Button Grid.Column="1"
+                                        Text="📂  Tanlash"
+                                        Style="{StaticResource SecondaryButtonStyle}"
+                                        Clicked="OnBrowseImportFile_Clicked"
+                                        Padding="14,12" />
+                            </Grid>
+
+                            <Label Text="EKSPORT PAROLI" Style="{StaticResource LabelStyle}" Margin="0,0,0,4" />
+                            <Border Background="{StaticResource InputBg}"
+                                    StrokeShape="RoundRectangle 8"
+                                    Stroke="{StaticResource BorderColor}"
+                                    Padding="14,0">
+                                <Grid ColumnDefinitions="*,Auto">
+                                    <Entry x:Name="ImportPasswordEntry"
+                                           Grid.Column="0"
+                                           Style="{StaticResource InputStyle}"
+                                           Placeholder="Faylni yaratishda ishlatilgan parol"
+                                           IsPassword="True" />
+                                    <Button Grid.Column="1"
+                                            x:Name="ToggleImportPwBtn"
+                                            Text="👁"
+                                            Style="{StaticResource IconButtonStyle}"
+                                            Clicked="OnToggleImportPw_Clicked" />
+                                </Grid>
+                            </Border>
+
+                            <Border Background="#1A1500"
+                                    StrokeShape="RoundRectangle 8"
+                                    Stroke="#3A3000"
+                                    Padding="14,10">
+                                <HorizontalStackLayout Spacing="10">
+                                    <Label Text="⚠️" FontSize="14" VerticalOptions="Center" />
+                                    <Label Text="Import qilingan parollar mavjudlarga QO'SHILADI, o'chirilmaydi."
+                                           FontSize="12"
+                                           TextColor="{StaticResource Warning}"
+                                           VerticalOptions="Center" />
+                                </HorizontalStackLayout>
+                            </Border>
+
+                            <Button Text="📥  Importga olish"
+                                    Style="{StaticResource PrimaryButtonStyle}"
+                                    Clicked="OnImport_Clicked" />
+
+                            <Label x:Name="ImportStatusLabel"
+                                   Text=""
+                                   FontSize="13"
+                                   HorizontalOptions="Start"
+                                   LineBreakMode="WordWrap" />
+
+                        </VerticalStackLayout>
+                    </Border>
+
+                </VerticalStackLayout>
+            </ScrollView>
+
+            <!-- ── SERVERS VIEW ───────────────────────────────── -->
+            <Grid x:Name="ServersView"
+                  Grid.RowSpan="2"
+                  RowDefinitions="Auto,*"
+                  IsVisible="False">
+
+                <!-- Header bar -->
+                <Grid Grid.Row="0"
+                      ColumnDefinitions="*,Auto"
+                      Padding="32,28,32,20"
+                      BackgroundColor="{StaticResource ContentBg}">
+
+                    <VerticalStackLayout Grid.Column="0" Spacing="2">
+                        <Label Text="Serverlar"
+                               Style="{StaticResource HeadingStyle}"
+                               FontSize="24" />
+                        <Label x:Name="ServerCountLabel"
+                               Text="0 ta server"
+                               Style="{StaticResource SubheadingStyle}" />
+                    </VerticalStackLayout>
+
+                    <Button Grid.Column="1"
+                            Text="+ Yangi server"
+                            Style="{StaticResource PrimaryButtonStyle}"
+                            Clicked="OnAddServer_Clicked"
+                            VerticalOptions="Center" />
+                </Grid>
+
+                <!-- Search + list -->
+                <Grid Grid.Row="1" RowDefinitions="Auto,*" Padding="32,0,32,24">
+
+                    <Border Grid.Row="0"
+                            Background="{StaticResource CardBg}"
+                            StrokeShape="RoundRectangle 10"
+                            Stroke="{StaticResource BorderColor}"
+                            Padding="16,0"
+                            Margin="0,0,0,20">
+                        <Grid ColumnDefinitions="Auto,*">
+                            <Label Grid.Column="0"
+                                   Text="S"
+                                   FontSize="15"
+                                   TextColor="{StaticResource TextMuted}"
+                                   VerticalOptions="Center"
+                                   Margin="0,0,10,0" />
+                            <Entry Grid.Column="1"
+                                   x:Name="ServerSearchEntry"
+                                   Placeholder="Server nomi yoki host bo'yicha qidiring..."
+                                   PlaceholderColor="{StaticResource TextMuted}"
+                                   TextColor="{StaticResource TextPrimary}"
+                                   BackgroundColor="Transparent"
+                                   FontSize="14"
+                                   HeightRequest="48"
+                                   TextChanged="OnServerSearch_Changed" />
+                        </Grid>
+                    </Border>
+
+                    <CollectionView Grid.Row="1"
+                                    x:Name="ServerList"
+                                    ItemsSource="{Binding}"
+                                    SelectionMode="None">
+                        <CollectionView.EmptyView>
+                            <VerticalStackLayout HorizontalOptions="Center"
+                                                 VerticalOptions="Center"
+                                                 Spacing="12"
+                                                 Padding="0,60">
+                                <Label Text="S"
+                                       FontSize="48"
+                                       TextColor="{StaticResource TextMuted}"
+                                       HorizontalOptions="Center" />
+                                <Label Text="Hali server saqlanmagan"
+                                       FontSize="16"
+                                       TextColor="{StaticResource TextSecondary}"
+                                       HorizontalOptions="Center" />
+                                <Label Text="Yuqoridagi tugmani bosib yangi server qo'shing"
+                                       FontSize="13"
+                                       TextColor="{StaticResource TextMuted}"
+                                       HorizontalOptions="Center" />
+                            </VerticalStackLayout>
+                        </CollectionView.EmptyView>
+                        <CollectionView.ItemTemplate>
+                            <DataTemplate>
+                                <Border Style="{StaticResource CardStyle}"
+                                        Margin="0,0,0,10">
+                                    <Grid ColumnDefinitions="Auto,*,Auto,Auto,Auto"
+                                          ColumnSpacing="12">
+
+                                        <!-- Type icon -->
+                                        <Border Grid.Column="0"
+                                                Background="{StaticResource NavItemActive}"
+                                                StrokeShape="RoundRectangle 10"
+                                                Stroke="Transparent"
+                                                WidthRequest="44" HeightRequest="44">
+                                            <Label Text="{Binding TypeIcon}"
+                                                   FontSize="18"
+                                                   HorizontalOptions="Center"
+                                                   VerticalOptions="Center" />
+                                        </Border>
+
+                                        <!-- Server info -->
+                                        <VerticalStackLayout Grid.Column="1" Spacing="4" VerticalOptions="Center">
+                                            <Label Text="{Binding Name}"
+                                                   FontSize="15"
+                                                   FontAttributes="Bold"
+                                                   TextColor="{StaticResource TextPrimary}" />
+                                            <HorizontalStackLayout Spacing="8">
+                                                <Label Text="{Binding DisplayHost}"
+                                                       FontSize="12"
+                                                       TextColor="{StaticResource TextSecondary}"
+                                                       FontFamily="OpenSansRegular" />
+                                                <Border IsVisible="{Binding HasType}"
+                                                        Background="#1A2040"
+                                                        StrokeShape="RoundRectangle 4"
+                                                        Stroke="Transparent"
+                                                        Padding="6,2">
+                                                    <Label Text="{Binding ServerType}"
+                                                           FontSize="11"
+                                                           TextColor="{StaticResource AccentLight}" />
+                                                </Border>
+                                            </HorizontalStackLayout>
+                                        </VerticalStackLayout>
+
+                                        <!-- View -->
+                                        <Button Grid.Column="2"
+                                                Text="V"
+                                                Style="{StaticResource IconButtonStyle}"
+                                                CommandParameter="{Binding Id}"
+                                                Clicked="OnViewServer_Clicked" />
+
+                                        <!-- Edit -->
+                                        <Button Grid.Column="3"
+                                                Text="E"
+                                                Style="{StaticResource IconButtonStyle}"
+                                                CommandParameter="{Binding Id}"
+                                                Clicked="OnEditServer_Clicked" />
+
+                                        <!-- Delete -->
+                                        <Button Grid.Column="4"
+                                                Text="D"
+                                                Style="{StaticResource IconButtonStyle}"
+                                                TextColor="{StaticResource Danger}"
+                                                CommandParameter="{Binding Id}"
+                                                Clicked="OnDeleteServer_Clicked" />
+
+                                    </Grid>
+                                </Border>
+                            </DataTemplate>
+                        </CollectionView.ItemTemplate>
+                    </CollectionView>
+                </Grid>
+            </Grid>
+
+        </Grid>
+    </Grid>
+
+</ContentPage>

@@ -1,0 +1,182 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage
+    x:Class="PasswordManager.Pages.AddEditServerPage"
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    BackgroundColor="{StaticResource AppBackground}"
+    NavigationPage.HasNavigationBar="False">
+
+    <Grid RowDefinitions="*,Auto" Padding="0">
+
+        <ScrollView Grid.Row="0" VerticalScrollBarVisibility="Default">
+            <Grid HorizontalOptions="Center"
+                  WidthRequest="520"
+                  Padding="0,40,0,24">
+                <Border Style="{StaticResource CardStyle}">
+                    <VerticalStackLayout Spacing="0">
+
+                        <!-- Header -->
+                        <Grid ColumnDefinitions="*,Auto" Margin="0,0,0,28">
+                            <VerticalStackLayout Grid.Column="0" Spacing="4">
+                                <Label x:Name="PageTitleLabel"
+                                       Text="Yangi server qo'shish"
+                                       Style="{StaticResource HeadingStyle}"
+                                       FontSize="20" />
+                                <Label Text="Server ma'lumotlari shifrlangan holda saqlanadi"
+                                       Style="{StaticResource SubheadingStyle}"
+                                       FontSize="12" />
+                            </VerticalStackLayout>
+                            <Button Grid.Column="1"
+                                    Text="X"
+                                    Style="{StaticResource IconButtonStyle}"
+                                    Clicked="OnCancel_Clicked"
+                                    VerticalOptions="Start" />
+                        </Grid>
+
+                        <!-- Server name -->
+                        <Label Text="SERVER NOMI *" Style="{StaticResource LabelStyle}" Margin="0,0,0,8" />
+                        <Border Background="{StaticResource InputBg}"
+                                StrokeShape="RoundRectangle 8"
+                                Stroke="{StaticResource BorderColor}"
+                                Padding="14,0"
+                                Margin="0,0,0,20">
+                            <Entry x:Name="NameEntry"
+                                   Style="{StaticResource InputStyle}"
+                                   Placeholder="Masalan: Asosiy web server, Baza serveri..."
+                                   ReturnType="Next" />
+                        </Border>
+
+                        <!-- Host -->
+                        <Label Text="HOST / IP MANZIL *" Style="{StaticResource LabelStyle}" Margin="0,0,0,8" />
+                        <Border Background="{StaticResource InputBg}"
+                                StrokeShape="RoundRectangle 8"
+                                Stroke="{StaticResource BorderColor}"
+                                Padding="14,0"
+                                Margin="0,0,0,20">
+                            <Entry x:Name="HostEntry"
+                                   Style="{StaticResource InputStyle}"
+                                   Placeholder="192.168.1.1 yoki server.example.com"
+                                   ReturnType="Next" />
+                        </Border>
+
+                        <!-- Port -->
+                        <Label Text="PORT (ixtiyoriy)" Style="{StaticResource LabelStyle}" Margin="0,0,0,8" />
+                        <Border Background="{StaticResource InputBg}"
+                                StrokeShape="RoundRectangle 8"
+                                Stroke="{StaticResource BorderColor}"
+                                Padding="14,0"
+                                Margin="0,0,0,20">
+                            <Entry x:Name="PortEntry"
+                                   Style="{StaticResource InputStyle}"
+                                   Placeholder="22, 3306, 5432, 80..."
+                                   Keyboard="Numeric"
+                                   ReturnType="Next" />
+                        </Border>
+
+                        <!-- Server type -->
+                        <Label Text="SERVER TURI (ixtiyoriy)" Style="{StaticResource LabelStyle}" Margin="0,0,0,8" />
+                        <Border Background="{StaticResource InputBg}"
+                                StrokeShape="RoundRectangle 8"
+                                Stroke="{StaticResource BorderColor}"
+                                Padding="14,0"
+                                Margin="0,0,0,20">
+                            <Picker x:Name="TypePicker"
+                                    Title="Turni tanlang..."
+                                    TitleColor="{StaticResource TextMuted}"
+                                    TextColor="{StaticResource TextPrimary}"
+                                    BackgroundColor="Transparent"
+                                    HeightRequest="52" />
+                        </Border>
+
+                        <!-- Username -->
+                        <Label Text="FOYDALANUVCHI NOMI (ixtiyoriy)" Style="{StaticResource LabelStyle}" Margin="0,0,0,8" />
+                        <Border Background="{StaticResource InputBg}"
+                                StrokeShape="RoundRectangle 8"
+                                Stroke="{StaticResource BorderColor}"
+                                Padding="14,0"
+                                Margin="0,0,0,20">
+                            <Entry x:Name="UsernameEntry"
+                                   Style="{StaticResource InputStyle}"
+                                   Placeholder="root, admin, ubuntu..."
+                                   ReturnType="Next" />
+                        </Border>
+
+                        <!-- Password -->
+                        <Label Text="PAROL / KALIT (ixtiyoriy)" Style="{StaticResource LabelStyle}" Margin="0,0,0,8" />
+                        <Border Background="{StaticResource InputBg}"
+                                StrokeShape="RoundRectangle 8"
+                                Stroke="{StaticResource BorderColor}"
+                                Padding="14,0"
+                                Margin="0,0,0,20">
+                            <Grid ColumnDefinitions="*,Auto">
+                                <Entry x:Name="PasswordEntry"
+                                       Grid.Column="0"
+                                       Style="{StaticResource InputStyle}"
+                                       Placeholder="Parol yoki SSH kalit"
+                                       IsPassword="True"
+                                       ReturnType="Next" />
+                                <Button Grid.Column="1"
+                                        x:Name="TogglePwBtn"
+                                        Text="O"
+                                        Style="{StaticResource IconButtonStyle}"
+                                        Clicked="OnTogglePassword_Clicked" />
+                            </Grid>
+                        </Border>
+
+                        <!-- Notes -->
+                        <Label Text="IZOH (ixtiyoriy)" Style="{StaticResource LabelStyle}" Margin="0,0,0,8" />
+                        <Border Background="{StaticResource InputBg}"
+                                StrokeShape="RoundRectangle 8"
+                                Stroke="{StaticResource BorderColor}"
+                                Padding="14,8"
+                                Margin="0,0,0,28">
+                            <Editor x:Name="NotesEditor"
+                                    TextColor="{StaticResource TextPrimary}"
+                                    PlaceholderColor="{StaticResource TextMuted}"
+                                    BackgroundColor="Transparent"
+                                    FontSize="14"
+                                    Placeholder="Server haqida qo'shimcha ma'lumot..."
+                                    MinimumHeightRequest="72"
+                                    AutoSize="TextChanges" />
+                        </Border>
+
+                        <!-- Error -->
+                        <Label x:Name="ErrorLabel"
+                               Text=""
+                               TextColor="{StaticResource Danger}"
+                               FontSize="13"
+                               HorizontalOptions="Center"
+                               Margin="0,0,0,16" />
+
+                        <!-- Buttons -->
+                        <Grid ColumnDefinitions="*,*" ColumnSpacing="12">
+                            <Button Grid.Column="0"
+                                    Text="Bekor qilish"
+                                    Style="{StaticResource SecondaryButtonStyle}"
+                                    Clicked="OnCancel_Clicked" />
+                            <Button Grid.Column="1"
+                                    x:Name="SaveButton"
+                                    Text="Saqlash"
+                                    Style="{StaticResource PrimaryButtonStyle}"
+                                    Clicked="OnSave_Clicked" />
+                        </Grid>
+
+                    </VerticalStackLayout>
+                </Border>
+            </Grid>
+        </ScrollView>
+
+        <!-- Loading overlay -->
+        <Grid Grid.RowSpan="2"
+              x:Name="LoadingOverlay"
+              IsVisible="False"
+              Background="#88000000">
+            <ActivityIndicator IsRunning="True"
+                               Color="{StaticResource AccentPrimary}"
+                               WidthRequest="48" HeightRequest="48"
+                               HorizontalOptions="Center"
+                               VerticalOptions="Center" />
+        </Grid>
+
+    </Grid>
+</ContentPage>

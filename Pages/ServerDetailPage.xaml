@@ -1,0 +1,169 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage
+    x:Class="PasswordManager.Pages.ServerDetailPage"
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    BackgroundColor="{StaticResource AppBackground}"
+    NavigationPage.HasNavigationBar="False">
+
+    <ScrollView>
+        <Grid HorizontalOptions="Center" WidthRequest="500" Padding="20,40,20,40">
+            <Border Style="{StaticResource CardStyle}">
+                <VerticalStackLayout Spacing="0">
+
+                    <!-- Header -->
+                    <Grid ColumnDefinitions="Auto,*,Auto" Margin="0,0,0,28">
+
+                        <Border Grid.Column="0"
+                                Background="{StaticResource NavItemActive}"
+                                StrokeShape="RoundRectangle 14"
+                                Stroke="Transparent"
+                                WidthRequest="52" HeightRequest="52">
+                            <Label x:Name="TypeIconLabel"
+                                   Text="🖥️"
+                                   FontSize="24"
+                                   HorizontalOptions="Center"
+                                   VerticalOptions="Center" />
+                        </Border>
+
+                        <VerticalStackLayout Grid.Column="1" Spacing="3" Margin="14,0,0,0" VerticalOptions="Center">
+                            <Label x:Name="ServerNameLabel"
+                                   Text="Server"
+                                   Style="{StaticResource HeadingStyle}"
+                                   FontSize="20" />
+                            <HorizontalStackLayout Spacing="8">
+                                <Label x:Name="DateLabel"
+                                       Text=""
+                                       Style="{StaticResource SubheadingStyle}"
+                                       FontSize="11" />
+                                <Border x:Name="TypeBadge"
+                                        IsVisible="False"
+                                        Background="#1A2040"
+                                        StrokeShape="RoundRectangle 4"
+                                        Stroke="Transparent"
+                                        Padding="6,2">
+                                    <Label x:Name="TypeBadgeLabel"
+                                           FontSize="11"
+                                           TextColor="{StaticResource AccentLight}" />
+                                </Border>
+                            </HorizontalStackLayout>
+                        </VerticalStackLayout>
+
+                        <Button Grid.Column="2"
+                                Text="X"
+                                Style="{StaticResource IconButtonStyle}"
+                                Clicked="OnClose_Clicked"
+                                VerticalOptions="Start" />
+                    </Grid>
+
+                    <!-- Host field -->
+                    <Label Text="HOST" Style="{StaticResource LabelStyle}" Margin="0,0,0,8" />
+                    <Border Background="{StaticResource InputBg}"
+                            StrokeShape="RoundRectangle 8"
+                            Stroke="{StaticResource BorderColor}"
+                            Padding="16,0"
+                            Margin="0,0,0,20">
+                        <Grid ColumnDefinitions="*,Auto">
+                            <Label x:Name="HostDisplayLabel"
+                                   Grid.Column="0"
+                                   Text=""
+                                   FontSize="14"
+                                   FontFamily="OpenSansRegular"
+                                   TextColor="{StaticResource TextPrimary}"
+                                   VerticalOptions="Center"
+                                   HeightRequest="48" />
+                            <Button Grid.Column="1"
+                                    Text="C"
+                                    Style="{StaticResource IconButtonStyle}"
+                                    Clicked="OnCopyHost_Clicked" />
+                        </Grid>
+                    </Border>
+
+                    <!-- Password field (conditional) -->
+                    <VerticalStackLayout x:Name="PasswordSection" IsVisible="False" Spacing="0">
+                        <Label Text="PAROL / KALIT" Style="{StaticResource LabelStyle}" Margin="0,0,0,8" />
+                        <Border Background="{StaticResource InputBg}"
+                                StrokeShape="RoundRectangle 8"
+                                Stroke="{StaticResource BorderColor}"
+                                Padding="16,0"
+                                Margin="0,0,0,20">
+                            <Grid ColumnDefinitions="*,Auto,Auto">
+                                <Label x:Name="PasswordDisplayLabel"
+                                       Grid.Column="0"
+                                       Text="......"
+                                       FontSize="18"
+                                       TextColor="{StaticResource TextSecondary}"
+                                       VerticalOptions="Center"
+                                       HeightRequest="52" />
+                                <Button Grid.Column="1"
+                                        x:Name="RevealBtn"
+                                        Text="O"
+                                        Style="{StaticResource IconButtonStyle}"
+                                        Clicked="OnRevealPassword_Clicked" />
+                                <Button Grid.Column="2"
+                                        Text="C"
+                                        Style="{StaticResource IconButtonStyle}"
+                                        Clicked="OnCopyPassword_Clicked" />
+                            </Grid>
+                        </Border>
+                    </VerticalStackLayout>
+
+                    <!-- Username field (conditional) -->
+                    <VerticalStackLayout x:Name="UsernameSection" IsVisible="False" Spacing="0">
+                        <Label Text="FOYDALANUVCHI NOMI" Style="{StaticResource LabelStyle}" Margin="0,0,0,8" />
+                        <Border Background="{StaticResource InputBg}"
+                                StrokeShape="RoundRectangle 8"
+                                Stroke="{StaticResource BorderColor}"
+                                Padding="16,0"
+                                Margin="0,0,0,20">
+                            <Grid ColumnDefinitions="*,Auto">
+                                <Label x:Name="UsernameDisplayLabel"
+                                       Grid.Column="0"
+                                       Text=""
+                                       FontSize="14"
+                                       TextColor="{StaticResource TextPrimary}"
+                                       VerticalOptions="Center"
+                                       HeightRequest="48" />
+                                <Button Grid.Column="1"
+                                        Text="C"
+                                        Style="{StaticResource IconButtonStyle}"
+                                        Clicked="OnCopyUsername_Clicked" />
+                            </Grid>
+                        </Border>
+                    </VerticalStackLayout>
+
+                    <!-- Notes field (conditional) -->
+                    <VerticalStackLayout x:Name="NotesSection" IsVisible="False" Spacing="0">
+                        <Label Text="IZOH" Style="{StaticResource LabelStyle}" Margin="0,0,0,8" />
+                        <Border Background="{StaticResource InputBg}"
+                                StrokeShape="RoundRectangle 8"
+                                Stroke="{StaticResource BorderColor}"
+                                Padding="16,12"
+                                Margin="0,0,0,20">
+                            <Label x:Name="NotesDisplayLabel"
+                                   Text=""
+                                   FontSize="13"
+                                   TextColor="{StaticResource TextPrimary}"
+                                   LineBreakMode="WordWrap" />
+                        </Border>
+                    </VerticalStackLayout>
+
+                    <!-- Error -->
+                    <Label x:Name="ErrorLabel"
+                           Text=""
+                           TextColor="{StaticResource Danger}"
+                           FontSize="13"
+                           HorizontalOptions="Center"
+                           Margin="0,0,0,16" />
+
+                    <!-- Close button -->
+                    <Button Text="Yopish"
+                            Style="{StaticResource SecondaryButtonStyle}"
+                            Clicked="OnClose_Clicked"
+                            HorizontalOptions="Fill" />
+
+                </VerticalStackLayout>
+            </Border>
+        </Grid>
+    </ScrollView>
+</ContentPage>

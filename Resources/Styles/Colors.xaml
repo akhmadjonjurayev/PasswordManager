@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<?xaml-comp compile="true" ?>
+<ResourceDictionary
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml">
+
+    <!-- ── Backgrounds ────────────────────────────────────────────────────── -->
+    <Color x:Key="AppBackground">#0F1117</Color>
+    <Color x:Key="SidebarBg">#141820</Color>
+    <Color x:Key="ContentBg">#0F1117</Color>
+    <Color x:Key="CardBg">#1A1F2E</Color>
+    <Color x:Key="CardHover">#1F2535</Color>
+    <Color x:Key="InputBg">#0F1117</Color>
+    <Color x:Key="ModalBg">#141820</Color>
+
+    <!-- ── Borders ─────────────────────────────────────────────────────────── -->
+    <Color x:Key="BorderColor">#2A2F42</Color>
+    <Color x:Key="BorderFocus">#5D5FEF</Color>
+
+    <!-- ── Brand / Accent ─────────────────────────────────────────────────── -->
+    <Color x:Key="AccentPrimary">#6C63FF</Color>
+    <Color x:Key="AccentLight">#8B83FF</Color>
+    <Color x:Key="AccentDark">#5048CC</Color>
+
+    <!-- ── Text ────────────────────────────────────────────────────────────── -->
+    <Color x:Key="TextPrimary">#F0F2FF</Color>
+    <Color x:Key="TextSecondary">#8A8FAB</Color>
+    <Color x:Key="TextMuted">#4A4F6A</Color>
+    <Color x:Key="TextOnAccent">#FFFFFF</Color>
+
+    <!-- ── Status ──────────────────────────────────────────────────────────── -->
+    <Color x:Key="Success">#4FD1A5</Color>
+    <Color x:Key="Danger">#F56565</Color>
+    <Color x:Key="Warning">#F6C343</Color>
+    <Color x:Key="Info">#63B3ED</Color>
+
+    <!-- ── Sidebar nav ─────────────────────────────────────────────────────── -->
+    <Color x:Key="NavItemActive">#1E2540</Color>
+    <Color x:Key="NavItemHover">#181D2C</Color>
+
+    <!-- ── Strength bar ────────────────────────────────────────────────────── -->
+    <Color x:Key="StrengthWeak">#F56565</Color>
+    <Color x:Key="StrengthFair">#F6C343</Color>
+    <Color x:Key="StrengthGood">#4FD1A5</Color>
+    <Color x:Key="StrengthStrong">#6C63FF</Color>
+
+</ResourceDictionary>

@@ -1,0 +1,191 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage
+    x:Class="PasswordManager.Pages.LoginPage"
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    BackgroundColor="{StaticResource AppBackground}"
+    Shell.NavBarIsVisible="False"
+    NavigationPage.HasNavigationBar="False">
+
+    <Grid>
+        <BoxView Color="#6C63FF" Opacity="0.03" />
+
+        <ScrollView VerticalScrollBarVisibility="Default">
+            <!-- Outer grid fills viewport; inner content is center-aligned via padding -->
+            <VerticalStackLayout
+                HorizontalOptions="Center"
+                WidthRequest="420"
+                Padding="20,60,20,60"
+                MinimumHeightRequest="640">
+
+                <!-- Card -->
+                <Border Style="{StaticResource CardStyle}" Padding="44,40">
+                    <VerticalStackLayout Spacing="0">
+
+                        <!-- Logo -->
+                        <Border Background="{StaticResource AccentPrimary}"
+                                StrokeShape="RoundRectangle 16"
+                                Stroke="Transparent"
+                                WidthRequest="56" HeightRequest="56"
+                                HorizontalOptions="Center"
+                                Margin="0,0,0,24">
+                            <Label Text="🔐"
+                                   FontSize="26"
+                                   HorizontalOptions="Center"
+                                   VerticalOptions="Center" />
+                        </Border>
+
+                        <!-- Title -->
+                        <Label x:Name="TitleLabel"
+                               Text="SecureVault"
+                               Style="{StaticResource HeadingStyle}"
+                               FontSize="26"
+                               HorizontalOptions="Center"
+                               Margin="0,0,0,6" />
+
+                        <Label x:Name="SubtitleLabel"
+                               Text="Parollaringiz xavfsiz saqlanadi"
+                               Style="{StaticResource SubheadingStyle}"
+                               FontSize="13"
+                               HorizontalOptions="Center"
+                               Margin="0,0,0,32" />
+
+                        <!-- ── Setup fields (first time only) ── -->
+                        <VerticalStackLayout x:Name="SetupSection" Spacing="0" IsVisible="False">
+
+                            <Label Text="ISM" Style="{StaticResource LabelStyle}" Margin="0,0,0,8" />
+                            <Border Background="{StaticResource InputBg}"
+                                    StrokeShape="RoundRectangle 8"
+                                    Stroke="{StaticResource BorderColor}"
+                                    Padding="14,0"
+                                    Margin="0,0,0,16">
+                                <Entry x:Name="FirstNameEntry"
+                                       Style="{StaticResource InputStyle}"
+                                       Placeholder="Ismingiz"
+                                       ReturnType="Next" />
+                            </Border>
+
+                            <Label Text="FAMILIYA" Style="{StaticResource LabelStyle}" Margin="0,0,0,8" />
+                            <Border Background="{StaticResource InputBg}"
+                                    StrokeShape="RoundRectangle 8"
+                                    Stroke="{StaticResource BorderColor}"
+                                    Padding="14,0"
+                                    Margin="0,0,0,16">
+                                <Entry x:Name="LastNameEntry"
+                                       Style="{StaticResource InputStyle}"
+                                       Placeholder="Familiyangiz"
+                                       ReturnType="Next" />
+                            </Border>
+
+                            <Label Text="ASOSIY PAROL YARATING" Style="{StaticResource LabelStyle}" Margin="0,0,0,8" />
+                            <Border Background="{StaticResource InputBg}"
+                                    StrokeShape="RoundRectangle 8"
+                                    Stroke="{StaticResource BorderColor}"
+                                    Padding="14,0"
+                                    Margin="0,0,0,4">
+                                <Grid ColumnDefinitions="*,Auto">
+                                    <Entry x:Name="SetupPasswordEntry"
+                                           Grid.Column="0"
+                                           Style="{StaticResource InputStyle}"
+                                           Placeholder="Kuchli parol kiriting"
+                                           IsPassword="True"
+                                           ReturnType="Next"
+                                           TextChanged="OnPasswordChanged" />
+                                    <Button Grid.Column="1"
+                                            x:Name="ToggleSetupPwBtn"
+                                            Text="👁"
+                                            Style="{StaticResource IconButtonStyle}"
+                                            Clicked="OnTogglePasswordVisibility"
+                                            CommandParameter="setup" />
+                                </Grid>
+                            </Border>
+
+                            <!-- Strength bar -->
+                            <Grid ColumnDefinitions="*,*,*,*" ColumnSpacing="4" Margin="0,8,0,4">
+                                <BoxView x:Name="Strength1" Grid.Column="0" HeightRequest="4" Color="{StaticResource BorderColor}" CornerRadius="2" />
+                                <BoxView x:Name="Strength2" Grid.Column="1" HeightRequest="4" Color="{StaticResource BorderColor}" CornerRadius="2" />
+                                <BoxView x:Name="Strength3" Grid.Column="2" HeightRequest="4" Color="{StaticResource BorderColor}" CornerRadius="2" />
+                                <BoxView x:Name="Strength4" Grid.Column="3" HeightRequest="4" Color="{StaticResource BorderColor}" CornerRadius="2" />
+                            </Grid>
+                            <Label x:Name="StrengthLabel"
+                                   Text=" "
+                                   FontSize="11"
+                                   TextColor="{StaticResource TextMuted}"
+                                   Margin="0,0,0,16" />
+
+                            <Label Text="PAROLNI TASDIQLANG" Style="{StaticResource LabelStyle}" Margin="0,0,0,8" />
+                            <Border Background="{StaticResource InputBg}"
+                                    StrokeShape="RoundRectangle 8"
+                                    Stroke="{StaticResource BorderColor}"
+                                    Padding="14,0"
+                                    Margin="0,0,0,24">
+                                <Entry x:Name="ConfirmPasswordEntry"
+                                       Style="{StaticResource InputStyle}"
+                                       Placeholder="Parolni qayta kiriting"
+                                       IsPassword="True"
+                                       ReturnType="Done"
+                                       Completed="OnActionButtonClicked" />
+                            </Border>
+
+                        </VerticalStackLayout>
+
+                        <!-- ── Login fields ── -->
+                        <VerticalStackLayout x:Name="LoginSection" Spacing="0">
+
+                            <Label Text="ASOSIY PAROL" Style="{StaticResource LabelStyle}" Margin="0,0,0,8" />
+                            <Border Background="{StaticResource InputBg}"
+                                    StrokeShape="RoundRectangle 8"
+                                    Stroke="{StaticResource BorderColor}"
+                                    Padding="14,0"
+                                    Margin="0,0,0,24">
+                                <Grid ColumnDefinitions="*,Auto">
+                                    <Entry x:Name="LoginPasswordEntry"
+                                           Grid.Column="0"
+                                           Style="{StaticResource InputStyle}"
+                                           Placeholder="Parolni kiriting"
+                                           IsPassword="True"
+                                           ReturnType="Done"
+                                           Completed="OnActionButtonClicked" />
+                                    <Button Grid.Column="1"
+                                            Text="👁"
+                                            Style="{StaticResource IconButtonStyle}"
+                                            Clicked="OnTogglePasswordVisibility"
+                                            CommandParameter="login" />
+                                </Grid>
+                            </Border>
+
+                        </VerticalStackLayout>
+
+                        <!-- Action button — always visible -->
+                        <Button x:Name="ActionButton"
+                                Text="Kirish"
+                                Style="{StaticResource PrimaryButtonStyle}"
+                                Clicked="OnActionButtonClicked"
+                                HorizontalOptions="Fill"
+                                Margin="0,0,0,12" />
+
+                        <!-- Error label -->
+                        <Label x:Name="ErrorLabel"
+                               Text=""
+                               TextColor="{StaticResource Danger}"
+                               FontSize="13"
+                               HorizontalOptions="Center"
+                               HorizontalTextAlignment="Center"
+                               Margin="0,0,0,4" />
+
+                        <!-- Loading indicator -->
+                        <ActivityIndicator x:Name="LoadingIndicator"
+                                           IsRunning="False"
+                                           IsVisible="False"
+                                           Color="{StaticResource AccentPrimary}"
+                                           HorizontalOptions="Center"
+                                           HeightRequest="32" />
+
+                    </VerticalStackLayout>
+                </Border>
+
+            </VerticalStackLayout>
+        </ScrollView>
+    </Grid>
+
+</ContentPage>
