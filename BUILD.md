@@ -8,6 +8,9 @@
 
 ## Ishga tushirish
 
+# poweshell da publish.ps1 ni ishga tushirishdan oldin yozish kerak
+Set-ExecutionPolicy Unrestricted -Scope Process
+
 ```bash
 # Loyiha papkasiga o'ting
 cd D:\Claude\PasswordManager

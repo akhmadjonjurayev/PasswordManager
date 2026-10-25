@@ -1,4 +1,4 @@
-/.vs
-/publish/_app_files
 /bin
 /obj
+/publish/_app_files
+/.vs
