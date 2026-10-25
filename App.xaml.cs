@@ -13,15 +13,13 @@ public partial class App : Application
     {
         InitializeComponent();
         _services = services;
+        ThemeService.Initialize(this);
     }
 
     // .NET 10 MAUI: CreateWindow is the correct entry point for window setup
     protected override Window CreateWindow(IActivationState? activationState)
     {
-        _appWindow = new Window(new ContentPage
-        {
-            BackgroundColor = Color.FromArgb("#0F1117")
-        })
+        _appWindow = new Window(new ContentPage())
         {
             Title = "SecureVault",
             MinimumWidth = 1000,
@@ -47,11 +45,10 @@ public partial class App : Application
                 if (_appWindow != null)
                     _appWindow.Page = new ContentPage
                     {
-                        BackgroundColor = Color.FromArgb("#0F1117"),
                         Content = new Label
                         {
                             Text = $"Bazani ochishda xato: {ex.Message}",
-                            TextColor = Colors.Red,
+                            TextColor = ThemeService.Color("Danger"),
                             HorizontalOptions = LayoutOptions.Center,
                             VerticalOptions = LayoutOptions.Center,
                             FontSize = 16

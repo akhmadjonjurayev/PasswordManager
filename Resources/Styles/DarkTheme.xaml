@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<?xaml-comp compile="true" ?>
+<ResourceDictionary
+    x:Class="PasswordManager.Resources.Styles.DarkTheme"
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml">
+
+    <!-- ── Surfaces ───────────────────────────────────────────────────────── -->
+    <Color x:Key="Bg">#0B0C0E</Color>
+    <Color x:Key="Surface">#141518</Color>
+    <Color x:Key="SurfaceAlt">#1A1C20</Color>
+    <Color x:Key="SurfaceMuted">#1F2125</Color>
+    <Color x:Key="Border">#26282D</Color>
+    <Color x:Key="BorderStrong">#34373D</Color>
+    <Color x:Key="Scrim">#99000000</Color>
+    <Color x:Key="ShadowColor">#000000</Color>
+
+    <!-- ── Text ───────────────────────────────────────────────────────────── -->
+    <Color x:Key="TextPrimary">#F2F4F7</Color>
+    <Color x:Key="TextSecondary">#B4B9C2</Color>
+    <Color x:Key="TextMuted">#8A909B</Color>
+    <Color x:Key="TextNav">#D0D5DD</Color>
+
+    <!-- ── Accent ─────────────────────────────────────────────────────────── -->
+    <Color x:Key="Accent">#4F46E5</Color>
+    <Color x:Key="AccentHover">#6366F1</Color>
+    <Color x:Key="AccentSoft">#1E1B4B</Color>
+    <Color x:Key="AccentOnSoft">#C7D2FE</Color>
+    <Color x:Key="OnAccent">#FFFFFF</Color>
+    <Color x:Key="Inverse">#F2F4F7</Color>
+    <Color x:Key="OnInverse">#0B0C0E</Color>
+
+    <!-- ── Status ─────────────────────────────────────────────────────────── -->
+    <Color x:Key="Success">#47CD89</Color>
+    <Color x:Key="SuccessSoft">#0B2618</Color>
+    <Color x:Key="SuccessBorder">#134E2E</Color>
+    <Color x:Key="SuccessBar">#17B26A</Color>
+    <Color x:Key="Warning">#FDB022</Color>
+    <Color x:Key="WarningSoft">#2A1D05</Color>
+    <Color x:Key="WarningBorder">#4E3A0C</Color>
+    <Color x:Key="WarningText">#FEC84B</Color>
+    <Color x:Key="Danger">#F97066</Color>
+    <Color x:Key="DangerSoft">#2B1110</Color>
+    <Color x:Key="DangerBorder">#55160C</Color>
+    <Color x:Key="StrengthEmpty">#26282D</Color>
+
+    <!-- ── Login side panel ───────────────────────────────────────────────── -->
+    <Color x:Key="LoginPanel">#17153A</Color>
+    <Color x:Key="LoginPanelText">#FFFFFF</Color>
+    <Color x:Key="LoginPanelMuted">#C7D2FE</Color>
+    <Color x:Key="LoginPanelLine">#33A5B4FC</Color>
+    <Color x:Key="LoginPanelFill">#264F46E5</Color>
+
+    <!-- ── Monogram tones (background / foreground) ───────────────────────── -->
+    <Color x:Key="Tone0Bg">#172554</Color> <Color x:Key="Tone0Fg">#93C5FD</Color>
+    <Color x:Key="Tone1Bg">#052E16</Color> <Color x:Key="Tone1Fg">#86EFAC</Color>
+    <Color x:Key="Tone2Bg">#431407</Color> <Color x:Key="Tone2Fg">#FDBA74</Color>
+    <Color x:Key="Tone3Bg">#2E1065</Color> <Color x:Key="Tone3Fg">#C4B5FD</Color>
+    <Color x:Key="Tone4Bg">#042F2E</Color> <Color x:Key="Tone4Fg">#5EEAD4</Color>
+    <Color x:Key="Tone5Bg">#4C0519</Color> <Color x:Key="Tone5Fg">#FDA4AF</Color>
+    <Color x:Key="Tone6Bg">#1F2937</Color> <Color x:Key="Tone6Fg">#D1D5DB</Color>
+
+</ResourceDictionary>

@@ -27,6 +27,20 @@ public partial class AddEditServerPage : ContentPage
         foreach (var t in ServerTypes)
             TypePicker.Items.Add(t);
         TypePicker.SelectedIndex = -1;
+
+        FieldFocus.Attach(NameEntry, NameField);
+        FieldFocus.Attach(HostEntry, HostField);
+        FieldFocus.Attach(PortEntry, PortField);
+        FieldFocus.Attach(TypePicker, TypeField);
+        FieldFocus.Attach(UsernameEntry, UsernameField);
+        FieldFocus.Attach(PasswordEntry, PasswordField);
+        FieldFocus.Attach(NotesEditor, NotesField);
+    }
+
+    private void ShowError(string? msg)
+    {
+        ErrorLabel.Text = msg ?? "";
+        ErrorBox.IsVisible = !string.IsNullOrEmpty(msg);
     }
 
     public void Configure(ServerEntry? existing, Func<Task>? onSaved)
@@ -38,7 +52,7 @@ public partial class AddEditServerPage : ContentPage
     protected override void OnAppearing()
     {
         base.OnAppearing();
-        ErrorLabel.Text = "";
+        ShowError(null);
 
         if (_existing != null)
         {
@@ -62,7 +76,7 @@ public partial class AddEditServerPage : ContentPage
             }
             catch
             {
-                ErrorLabel.Text = "Ma'lumotlarni ochib bo'lmadi.";
+                ShowError("Ma'lumotlarni ochib bo'lmadi.");
             }
         }
         else
@@ -75,7 +89,7 @@ public partial class AddEditServerPage : ContentPage
 
     private async void OnSave_Clicked(object? sender, EventArgs e)
     {
-        ErrorLabel.Text = "";
+        ShowError(null);
         var name     = NameEntry.Text?.Trim() ?? "";
         var host     = HostEntry.Text?.Trim() ?? "";
         var port     = PortEntry.Text?.Trim();
@@ -89,12 +103,12 @@ public partial class AddEditServerPage : ContentPage
 
         if (string.IsNullOrEmpty(name))
         {
-            ErrorLabel.Text = "Server nomini kiriting.";
+            ShowError("Server nomini kiriting.");
             return;
         }
         if (string.IsNullOrEmpty(host))
         {
-            ErrorLabel.Text = "Host yoki IP manzilni kiriting.";
+            ShowError("Host yoki IP manzilni kiriting.");
             return;
         }
 
@@ -142,7 +156,7 @@ public partial class AddEditServerPage : ContentPage
         }
         catch (Exception ex)
         {
-            ErrorLabel.Text = $"Xato: {ex.Message}";
+            ShowError($"Xato: {ex.Message}");
         }
         finally
         {
@@ -156,7 +170,7 @@ public partial class AddEditServerPage : ContentPage
     private void OnTogglePassword_Clicked(object? sender, EventArgs e)
     {
         PasswordEntry.IsPassword = !PasswordEntry.IsPassword;
-        TogglePwBtn.Text = PasswordEntry.IsPassword ? "O" : "H";
+        TogglePwBtn.Text = PasswordEntry.IsPassword ? Glyphs.View : Glyphs.Hide;
     }
 
     private void SetLoading(bool loading)

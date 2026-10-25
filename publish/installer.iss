@@ -5,7 +5,7 @@
 ; ══════════════════════════════════════════════════════
 
 #define AppName      "SecureVault"
-#define AppVersion   "1.0.0"
+#define AppVersion   "1.0.1"
 #define AppPublisher "SecureVault"
 #define AppExeName   "PasswordManager.exe"
 

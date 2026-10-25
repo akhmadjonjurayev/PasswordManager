@@ -16,40 +16,63 @@ public partial class LoginPage : ContentPage
         _db = db;
         _crypto = crypto;
         _session = session;
+
+        FieldFocus.Attach(FirstNameEntry, FirstNameField);
+        FieldFocus.Attach(LastNameEntry, LastNameField);
+        FieldFocus.Attach(SetupPasswordEntry, SetupPasswordField);
+        FieldFocus.Attach(ConfirmPasswordEntry, ConfirmPasswordField);
+        FieldFocus.Attach(LoginPasswordEntry, LoginPasswordField);
+
+        UpdateThemeButton();
+        SizeChanged += (_, _) => UpdateLayoutForWidth();
     }
 
     protected override async void OnAppearing()
     {
         base.OnAppearing();
         _isFirstTime = !await _db.IsInitializedAsync();
-        SetupUI();
-        ErrorLabel.Text = "";
+        await SetupUIAsync();
+        ShowError(null);
     }
 
-    private void SetupUI()
+    private async Task SetupUIAsync()
     {
         if (_isFirstTime)
         {
-            TitleLabel.Text = "Xush kelibsiz!";
-            SubtitleLabel.Text = "Birinchi marta sozlash";
+            InitialsLabel.FontFamily = (string)Application.Current!.Resources["IconFont"];
+            InitialsLabel.Text = Glyphs.Key;
+            TitleLabel.Text = "Hisob yaratish";
+            SubtitleLabel.Text = "Birinchi marta sozlash: ismingiz va asosiy parolni kiriting.";
             ActionButton.Text = "Hisob yaratish";
             SetupSection.IsVisible = true;
             LoginSection.IsVisible = false;
+            FirstNameEntry.Focus();
         }
         else
         {
-            TitleLabel.Text = "SecureVault";
-            SubtitleLabel.Text = "Parollaringiz xavfsiz saqlanadi";
-            ActionButton.Text = "Kirish";
+            var profile = await _db.GetUserProfileAsync();
+            InitialsLabel.FontFamily = (string)Application.Current!.Resources["TextFont"];
+            InitialsLabel.Text = profile?.Initials ?? "";
+            TitleLabel.Text = profile != null ? $"Xush kelibsiz, {profile.FirstName}" : "Xush kelibsiz";
+            SubtitleLabel.Text = "Omborni ochish uchun asosiy parolingizni kiriting.";
+            ActionButton.Text = "Omborni ochish";
             SetupSection.IsVisible = false;
             LoginSection.IsVisible = true;
             LoginPasswordEntry.Focus();
         }
     }
 
+    private void UpdateLayoutForWidth()
+    {
+        // Brand panel only when there is room for both halves
+        bool wide = Width >= 960;
+        BrandPanel.IsVisible = wide;
+        RootGrid.ColumnDefinitions[0].Width = wide ? GridLength.Star : new GridLength(0);
+    }
+
     private async void OnActionButtonClicked(object? sender, EventArgs e)
     {
-        ErrorLabel.Text = "";
+        ShowError(null);
         SetLoading(true);
 
         try
@@ -88,7 +111,8 @@ public partial class LoginPage : ContentPage
             return;
         }
 
-        var (hash, salt) = _crypto.HashPassword(password);
+        // PBKDF2 is slow on purpose — keep it off the UI thread so the spinner animates
+        var (hash, salt) = await Task.Run(() => _crypto.HashPassword(password));
         var profile = new UserProfile
         {
             FirstName    = firstName,
@@ -99,7 +123,7 @@ public partial class LoginPage : ContentPage
         };
 
         await _db.SaveUserProfileAsync(profile);
-        _crypto.InitializeKey(password, salt);
+        await Task.Run(() => _crypto.InitializeKey(password, salt));
         _session.Login(profile.FullName, profile.Initials);
 
         GoToMain();
@@ -121,14 +145,16 @@ public partial class LoginPage : ContentPage
             return;
         }
 
-        if (!_crypto.VerifyPassword(password, profile.PasswordHash, profile.PasswordSalt))
+        bool ok = await Task.Run(() => _crypto.VerifyPassword(password, profile.PasswordHash, profile.PasswordSalt));
+        if (!ok)
         {
             ShowError("Noto'g'ri parol.");
             LoginPasswordEntry.Text = "";
+            LoginPasswordEntry.Focus();
             return;
         }
 
-        _crypto.InitializeKey(password, profile.PasswordSalt);
+        await Task.Run(() => _crypto.InitializeKey(password, profile.PasswordSalt));
         _session.Login(profile.FullName, profile.Initials);
 
         GoToMain();
@@ -140,7 +166,11 @@ public partial class LoginPage : ContentPage
             app.NavigateToMain();
     }
 
-    private void ShowError(string msg) => ErrorLabel.Text = msg;
+    private void ShowError(string? msg)
+    {
+        ErrorLabel.Text = msg ?? "";
+        ErrorBox.IsVisible = !string.IsNullOrEmpty(msg);
+    }
 
     private void SetLoading(bool loading)
     {
@@ -151,58 +181,21 @@ public partial class LoginPage : ContentPage
 
     private void OnTogglePasswordVisibility(object? sender, EventArgs e)
     {
-        if (sender is Button btn)
-        {
-            var target = btn.CommandParameter as string;
-            if (target == "setup")
-            {
-                SetupPasswordEntry.IsPassword = !SetupPasswordEntry.IsPassword;
-                btn.Text = SetupPasswordEntry.IsPassword ? "👁" : "🙈";
-            }
-            else
-            {
-                LoginPasswordEntry.IsPassword = !LoginPasswordEntry.IsPassword;
-                btn.Text = LoginPasswordEntry.IsPassword ? "👁" : "🙈";
-            }
-        }
+        if (sender is not Button btn) return;
+        var entry = btn.CommandParameter as string == "setup" ? SetupPasswordEntry : LoginPasswordEntry;
+        entry.IsPassword = !entry.IsPassword;
+        btn.Text = entry.IsPassword ? Glyphs.View : Glyphs.Hide;
     }
 
     private void OnPasswordChanged(object? sender, TextChangedEventArgs e)
+        => FieldFocus.ShowStrength(e.NewTextValue ?? "", [Strength1, Strength2, Strength3, Strength4], StrengthLabel);
+
+    private void OnToggleTheme_Clicked(object? sender, EventArgs e)
     {
-        var pw = e.NewTextValue ?? "";
-        var score = GetPasswordStrength(pw);
-        UpdateStrengthBar(score);
+        ThemeService.Toggle();
+        UpdateThemeButton();
     }
 
-    private static int GetPasswordStrength(string pw)
-    {
-        if (pw.Length == 0) return 0;
-        int score = 0;
-        if (pw.Length >= 8) score++;
-        if (pw.Length >= 12) score++;
-        if (pw.Any(char.IsUpper) && pw.Any(char.IsLower)) score++;
-        if (pw.Any(char.IsDigit)) score++;
-        if (pw.Any(c => !char.IsLetterOrDigit(c))) score++;
-        return Math.Min(score, 4);
-    }
-
-    private void UpdateStrengthBar(int score)
-    {
-        var bars = new[] { Strength1, Strength2, Strength3, Strength4 };
-        var colors = new[]
-        {
-            Color.FromArgb("#F56565"),
-            Color.FromArgb("#F6C343"),
-            Color.FromArgb("#4FD1A5"),
-            Color.FromArgb("#6C63FF")
-        };
-        var labels = new[] { "", "Zaif", "O'rtacha", "Yaxshi", "Kuchli" };
-        var border = Color.FromArgb("#2A2F42");
-
-        for (int i = 0; i < 4; i++)
-            bars[i].Color = i < score ? colors[score - 1] : border;
-
-        StrengthLabel.Text = score > 0 ? labels[score] : "";
-        StrengthLabel.TextColor = score > 0 ? colors[score - 1] : Colors.Transparent;
-    }
+    private void UpdateThemeButton()
+        => ThemeButton.Text = ThemeService.IsDark ? Glyphs.Sun : Glyphs.Moon;
 }

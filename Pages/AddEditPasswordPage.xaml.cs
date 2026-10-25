@@ -19,6 +19,13 @@ public partial class AddEditPasswordPage : ContentPage
         InitializeComponent();
         _db = db;
         _crypto = crypto;
+
+        FieldFocus.Attach(ServiceEntry, ServiceField);
+        FieldFocus.Attach(PasswordEntry, PasswordField);
+        FieldFocus.Attach(FolderPicker, FolderField);
+        FieldFocus.Attach(UsernameEntry, UsernameField);
+        FieldFocus.Attach(EmailEntry, EmailField);
+        FieldFocus.Attach(PhoneEntry, PhoneField);
     }
 
     public void Configure(PasswordEntry? existing, Func<Task>? onSaved, int? defaultFolderId = null)
@@ -31,6 +38,7 @@ public partial class AddEditPasswordPage : ContentPage
     protected override async void OnAppearing()
     {
         base.OnAppearing();
+        ShowError(null);
 
         await LoadFolderPickerAsync();
 
@@ -50,53 +58,45 @@ public partial class AddEditPasswordPage : ContentPage
                 if (_existing.EncryptedPhone != null)
                     PhoneEntry.Text = _crypto.Decrypt(_existing.EncryptedPhone);
 
-                // Pre-select current folder
-                if (_existing.FolderId.HasValue)
-                {
-                    var idx = _pickerFolders.FindIndex(f => f?.Id == _existing.FolderId.Value);
-                    if (idx >= 0) FolderPicker.SelectedIndex = idx;
-                }
+                SelectFolder(_existing.FolderId);
             }
             catch
             {
-                ErrorLabel.Text = "Ma'lumotlarni ochib bo'lmadi.";
+                ShowError("Ma'lumotlarni ochib bo'lmadi.");
             }
         }
         else
         {
             PageTitleLabel.Text = "Yangi parol qo'shish";
             SaveButton.Text = "Saqlash";
-
-            // Pre-select default folder (when adding from a folder view)
-            if (_defaultFolderId.HasValue)
-            {
-                var idx = _pickerFolders.FindIndex(f => f?.Id == _defaultFolderId.Value);
-                if (idx >= 0) FolderPicker.SelectedIndex = idx;
-            }
-
+            SelectFolder(_defaultFolderId);
             ServiceEntry.Focus();
         }
-
-        ErrorLabel.Text = "";
     }
 
     private async Task LoadFolderPickerAsync()
     {
         var folders = await _db.GetFoldersAsync();
-        _pickerFolders = new List<Folder?> { null };
-        _pickerFolders.AddRange(folders.Cast<Folder?>());
+        _pickerFolders = [null, .. folders];
 
         FolderPicker.Items.Clear();
-        FolderPicker.Items.Add("(Papkasiz)");
+        FolderPicker.Items.Add("Papkasiz");
         foreach (var f in folders)
             FolderPicker.Items.Add(f.Name);
 
         FolderPicker.SelectedIndex = 0;
     }
 
+    private void SelectFolder(int? folderId)
+    {
+        if (!folderId.HasValue) return;
+        var idx = _pickerFolders.FindIndex(f => f?.Id == folderId.Value);
+        if (idx >= 0) FolderPicker.SelectedIndex = idx;
+    }
+
     private async void OnSave_Clicked(object? sender, EventArgs e)
     {
-        ErrorLabel.Text = "";
+        ShowError(null);
         var service  = ServiceEntry.Text?.Trim() ?? "";
         var password = PasswordEntry.Text ?? "";
         var username = UsernameEntry.Text?.Trim();
@@ -105,16 +105,17 @@ public partial class AddEditPasswordPage : ContentPage
 
         if (string.IsNullOrEmpty(service))
         {
-            ErrorLabel.Text = "Xizmat nomini kiriting.";
+            ShowError("Xizmat nomini kiriting.");
+            ServiceEntry.Focus();
             return;
         }
         if (string.IsNullOrEmpty(password))
         {
-            ErrorLabel.Text = "Parolni kiriting.";
+            ShowError("Parolni kiriting.");
+            PasswordEntry.Focus();
             return;
         }
 
-        // Resolve selected folder
         int? folderId = null;
         var selIdx = FolderPicker.SelectedIndex;
         if (selIdx > 0 && selIdx < _pickerFolders.Count)
@@ -163,7 +164,7 @@ public partial class AddEditPasswordPage : ContentPage
         }
         catch (Exception ex)
         {
-            ErrorLabel.Text = $"Xato: {ex.Message}";
+            ShowError($"Xato: {ex.Message}");
         }
         finally
         {
@@ -177,7 +178,7 @@ public partial class AddEditPasswordPage : ContentPage
     private void OnTogglePassword_Clicked(object? sender, EventArgs e)
     {
         PasswordEntry.IsPassword = !PasswordEntry.IsPassword;
-        TogglePwBtn.Text = PasswordEntry.IsPassword ? "👁" : "🙈";
+        TogglePwBtn.Text = PasswordEntry.IsPassword ? Glyphs.View : Glyphs.Hide;
     }
 
     private void OnQuickGenerate_Clicked(object? sender, EventArgs e)
@@ -188,36 +189,16 @@ public partial class AddEditPasswordPage : ContentPage
             pw[i] = chars[RandomNumberGenerator.GetInt32(chars.Length)];
         PasswordEntry.Text = new string(pw);
         PasswordEntry.IsPassword = false;
-        TogglePwBtn.Text = "🙈";
+        TogglePwBtn.Text = Glyphs.Hide;
     }
 
     private void OnPasswordTextChanged(object? sender, TextChangedEventArgs e)
+        => FieldFocus.ShowStrength(e.NewTextValue ?? "", [PwStrength1, PwStrength2, PwStrength3, PwStrength4], PwStrengthLabel);
+
+    private void ShowError(string? msg)
     {
-        var pw = e.NewTextValue ?? "";
-        int score = 0;
-        if (pw.Length >= 8) score++;
-        if (pw.Length >= 12) score++;
-        if (pw.Any(char.IsUpper) && pw.Any(char.IsLower)) score++;
-        if (pw.Any(char.IsDigit)) score++;
-        if (pw.Any(c => !char.IsLetterOrDigit(c))) score++;
-        score = Math.Min(score, 4);
-
-        var bars = new[] { PwStrength1, PwStrength2, PwStrength3, PwStrength4 };
-        var colors = new[]
-        {
-            Color.FromArgb("#F56565"),
-            Color.FromArgb("#F6C343"),
-            Color.FromArgb("#4FD1A5"),
-            Color.FromArgb("#6C63FF")
-        };
-        var labels = new[] { "", "Zaif", "O'rtacha", "Yaxshi", "Kuchli" };
-        var border = Color.FromArgb("#2A2F42");
-
-        for (int i = 0; i < 4; i++)
-            bars[i].Color = i < score ? colors[score - 1] : border;
-
-        PwStrengthLabel.Text = score > 0 ? labels[score] : "";
-        PwStrengthLabel.TextColor = score > 0 ? colors[score - 1] : Colors.Transparent;
+        ErrorLabel.Text = msg ?? "";
+        ErrorBox.IsVisible = !string.IsNullOrEmpty(msg);
     }
 
     private void SetLoading(bool loading)

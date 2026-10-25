@@ -5,4 +5,30 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:maui="using:Microsoft.Maui"
     xmlns:local="using:PasswordManager">
+
+    <!-- Every Entry / Editor / Picker is wrapped in our own rounded Border (Styles.xaml "Field"),
+         so drop the native WinUI frame: no border, no focus underline, no background. -->
+    <maui:MauiWinUIApplication.Resources>
+        <ResourceDictionary>
+            <Thickness x:Key="TextControlBorderThemeThickness">0</Thickness>
+            <Thickness x:Key="TextControlBorderThemeThicknessFocused">0</Thickness>
+            <SolidColorBrush x:Key="TextControlBackground" Color="Transparent" />
+            <SolidColorBrush x:Key="TextControlBackgroundPointerOver" Color="Transparent" />
+            <SolidColorBrush x:Key="TextControlBackgroundFocused" Color="Transparent" />
+            <SolidColorBrush x:Key="TextControlBorderBrush" Color="Transparent" />
+            <SolidColorBrush x:Key="TextControlBorderBrushPointerOver" Color="Transparent" />
+            <SolidColorBrush x:Key="TextControlBorderBrushFocused" Color="Transparent" />
+
+            <Thickness x:Key="ComboBoxBorderThemeThickness">0</Thickness>
+            <SolidColorBrush x:Key="ComboBoxBackground" Color="Transparent" />
+            <SolidColorBrush x:Key="ComboBoxBackgroundPointerOver" Color="Transparent" />
+            <SolidColorBrush x:Key="ComboBoxBackgroundPressed" Color="Transparent" />
+            <SolidColorBrush x:Key="ComboBoxBackgroundFocused" Color="Transparent" />
+            <SolidColorBrush x:Key="ComboBoxBackgroundUnfocused" Color="Transparent" />
+            <SolidColorBrush x:Key="ComboBoxBorderBrush" Color="Transparent" />
+            <SolidColorBrush x:Key="ComboBoxBorderBrushPointerOver" Color="Transparent" />
+            <SolidColorBrush x:Key="ComboBoxBorderBrushPressed" Color="Transparent" />
+            <SolidColorBrush x:Key="ComboBoxBorderBrushFocused" Color="Transparent" />
+        </ResourceDictionary>
+    </maui:MauiWinUIApplication.Resources>
 </maui:MauiWinUIApplication>

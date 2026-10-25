@@ -1,0 +1,114 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentView
+    x:Class="PasswordManager.Views.ServerDrawer"
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml">
+
+    <Grid RowDefinitions="Auto,*">
+
+        <Grid Grid.Row="0" ColumnDefinitions="*,Auto" Padding="24,20,20,0">
+            <Label Text="SERVER" Style="{StaticResource Caps}" VerticalOptions="Center" />
+            <Button Grid.Column="1"
+                    Text="&#xE711;"
+                    Style="{StaticResource IconButton}"
+                    BackgroundColor="{DynamicResource SurfaceMuted}"
+                    Clicked="OnClose_Clicked"
+                    ToolTipProperties.Text="Yopish" />
+        </Grid>
+
+        <ScrollView Grid.Row="1">
+            <VerticalStackLayout Padding="24,16,24,24" Spacing="18">
+
+                <Grid ColumnDefinitions="Auto,*" ColumnSpacing="14">
+                    <Border x:Name="TileBorder" Style="{StaticResource Tile}"
+                            WidthRequest="56" HeightRequest="56" StrokeShape="RoundRectangle 16">
+                        <Label x:Name="TypeGlyphLabel" Style="{StaticResource Glyph}" FontSize="24" />
+                    </Border>
+                    <VerticalStackLayout Grid.Column="1" VerticalOptions="Center" Spacing="2">
+                        <Label x:Name="NameLabel" Style="{StaticResource Heading}" FontSize="22"
+                               LineBreakMode="TailTruncation" />
+                        <Label x:Name="MetaLabel" Style="{StaticResource Subheading}" />
+                    </VerticalStackLayout>
+                </Grid>
+
+                <Grid ColumnDefinitions="*,Auto,Auto" ColumnSpacing="8">
+                    <Button x:Name="PrimaryCopyButton"
+                            Text="Parolni nusxalash"
+                            Style="{StaticResource PrimaryButton}"
+                            Clicked="OnPrimaryCopy_Clicked">
+                        <Button.ImageSource>
+                            <FontImageSource Glyph="&#xE8C8;" FontFamily="{StaticResource IconFont}" Size="15" Color="White" />
+                        </Button.ImageSource>
+                    </Button>
+                    <Button Grid.Column="1" Text="&#xE70F;" Style="{StaticResource IconButtonOutline}"
+                            Clicked="OnEdit_Clicked" ToolTipProperties.Text="Tahrirlash" />
+                    <Button Grid.Column="2" Text="&#xE74D;" Style="{StaticResource DangerIconButton}"
+                            Clicked="OnDelete_Clicked" ToolTipProperties.Text="O'chirish" />
+                </Grid>
+
+                <VerticalStackLayout Spacing="0">
+                    <Label Text="Host" Style="{StaticResource FieldLabel}" />
+                    <Border Style="{StaticResource Field}">
+                        <Grid ColumnDefinitions="*,Auto">
+                            <Label x:Name="HostLabel" FontFamily="{StaticResource MonoFont}" FontSize="14"
+                                   VerticalOptions="Center" LineBreakMode="TailTruncation" />
+                            <Button Grid.Column="1" Text="&#xE8C8;" Style="{StaticResource IconButton}"
+                                    Clicked="OnCopyHost_Clicked" ToolTipProperties.Text="Nusxalash" />
+                        </Grid>
+                    </Border>
+                </VerticalStackLayout>
+
+                <VerticalStackLayout x:Name="UsernameSection" Spacing="0">
+                    <Label Text="Foydalanuvchi nomi" Style="{StaticResource FieldLabel}" />
+                    <Border Style="{StaticResource Field}">
+                        <Grid ColumnDefinitions="*,Auto">
+                            <Label x:Name="UsernameLabel" FontFamily="{StaticResource MonoFont}" FontSize="14"
+                                   VerticalOptions="Center" LineBreakMode="TailTruncation" />
+                            <Button Grid.Column="1" Text="&#xE8C8;" Style="{StaticResource IconButton}"
+                                    Clicked="OnCopyUsername_Clicked" ToolTipProperties.Text="Nusxalash" />
+                        </Grid>
+                    </Border>
+                </VerticalStackLayout>
+
+                <VerticalStackLayout x:Name="PasswordSection" Spacing="0">
+                    <Label Text="Parol / kalit" Style="{StaticResource FieldLabel}" />
+                    <Border Style="{StaticResource Field}">
+                        <Grid ColumnDefinitions="*,Auto,Auto">
+                            <Label x:Name="PasswordLabel" FontFamily="{StaticResource MonoFont}" FontSize="15"
+                                   VerticalOptions="Center" LineBreakMode="TailTruncation" />
+                            <Button x:Name="RevealButton" Grid.Column="1" Text="&#xE890;"
+                                    Style="{StaticResource IconButton}"
+                                    Clicked="OnReveal_Clicked" ToolTipProperties.Text="Ko'rsatish / yashirish" />
+                            <Button Grid.Column="2" Text="&#xE8C8;" Style="{StaticResource IconButton}"
+                                    Clicked="OnCopyPassword_Clicked" ToolTipProperties.Text="Nusxalash" />
+                        </Grid>
+                    </Border>
+                </VerticalStackLayout>
+
+                <VerticalStackLayout x:Name="NotesSection" Spacing="0">
+                    <Label Text="Izoh" Style="{StaticResource FieldLabel}" />
+                    <Border Style="{StaticResource Field}" Padding="14,12">
+                        <Label x:Name="NotesLabel" LineBreakMode="WordWrap"
+                               TextColor="{DynamicResource TextSecondary}" />
+                    </Border>
+                </VerticalStackLayout>
+
+                <Border Style="{StaticResource Card}" Padding="16,4" StrokeShape="RoundRectangle 12">
+                    <VerticalStackLayout>
+                        <Grid ColumnDefinitions="*,Auto" HeightRequest="44">
+                            <Label Text="Yaratilgan" TextColor="{DynamicResource TextSecondary}" VerticalOptions="Center" />
+                            <Label x:Name="CreatedLabel" Grid.Column="1" FontAttributes="Bold" VerticalOptions="Center" />
+                        </Grid>
+                        <BoxView HeightRequest="1" Color="{DynamicResource Border}" />
+                        <Grid ColumnDefinitions="*,Auto" HeightRequest="44">
+                            <Label Text="O'zgartirilgan" TextColor="{DynamicResource TextSecondary}" VerticalOptions="Center" />
+                            <Label x:Name="UpdatedLabel" Grid.Column="1" FontAttributes="Bold" VerticalOptions="Center" />
+                        </Grid>
+                    </VerticalStackLayout>
+                </Border>
+
+                <Label x:Name="ErrorLabel" IsVisible="False" TextColor="{DynamicResource Danger}" />
+            </VerticalStackLayout>
+        </ScrollView>
+    </Grid>
+</ContentView>

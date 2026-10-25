@@ -12,6 +12,11 @@ public class DatabaseService : IDisposable
     {
         var appData = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData);
         var dir = Path.Combine(appData, "SecureVault");
+#if DEBUG
+        // Debug builds can point at a throwaway vault instead of the real one
+        var overrideDir = Environment.GetEnvironmentVariable("SECUREVAULT_DATA_DIR");
+        if (!string.IsNullOrWhiteSpace(overrideDir)) dir = overrideDir;
+#endif
         Directory.CreateDirectory(dir);
         _dbPath = Path.Combine(dir, "vault.db");
     }

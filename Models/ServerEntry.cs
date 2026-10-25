@@ -20,17 +20,18 @@ public class ServerEntry
 
     public string DisplayHost => string.IsNullOrEmpty(Port) ? Host : $"{Host}:{Port}";
 
-    public string TypeIcon => ServerType switch
+    // Segoe Fluent Icons glyph for the server type
+    public string TypeGlyph => ServerType switch
     {
-        "SSH"        => "🔐",
-        "SFTP"       => "📁",
-        "FTP"        => "📁",
-        "HTTP/HTTPS" => "🌐",
-        "RDP"        => "🖥️",
-        "VNC"        => "📺",
-        "MySQL"      => "🗄️",
-        "PostgreSQL" => "🗄️",
-        "MongoDB"    => "🗄️",
-        _            => "🖥️"
+        "SSH"        => "",
+        "SFTP"       => "",
+        "FTP"        => "",
+        "HTTP/HTTPS" => "",
+        "RDP"        => "",
+        "VNC"        => "",
+        "MySQL"      => "",
+        "PostgreSQL" => "",
+        "MongoDB"    => "",
+        _            => ""
     };
 }
