@@ -35,15 +35,12 @@
                         StrokeShape="RoundRectangle 56"
                         StrokeThickness="0"
                         BackgroundColor="{DynamicResource LoginPanelFill}">
-                    <Label Style="{StaticResource Glyph}"
-                           Text="&#xEA18;" FontSize="80"
-                           TextColor="{DynamicResource LoginPanelText}" />
+                    <Image Source="logo_mark.png" WidthRequest="96" HeightRequest="96" />
                 </Border>
             </Grid>
 
             <HorizontalStackLayout Grid.Row="0" Spacing="10">
-                <Label Style="{StaticResource Glyph}" Text="&#xEA18;" FontSize="20"
-                       TextColor="{DynamicResource LoginPanelText}" />
+                <Image Source="logo_mark.png" WidthRequest="24" HeightRequest="24" VerticalOptions="Center" />
                 <Label Text="SecureVault" FontSize="18" FontAttributes="Bold"
                        FontFamily="{StaticResource DisplayFont}"
                        TextColor="{DynamicResource LoginPanelText}" VerticalOptions="Center" />

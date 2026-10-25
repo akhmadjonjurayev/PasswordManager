@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="128" height="128" viewBox="176 176 672 672">
+  <!-- White shield with a keyhole cut out, for use on the indigo login panel -->
+  <path fill-rule="evenodd" fill="#FFFFFF"
+        d="M512 176 L780 268 L780 506 C780 680 668 800 512 856 C356 800 244 680 244 506 L244 268 Z
+           M478 536 A76 76 0 1 1 546 536 L572 664 L452 664 Z"/>
+</svg>

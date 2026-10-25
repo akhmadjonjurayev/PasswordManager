@@ -5,7 +5,7 @@
 ; ══════════════════════════════════════════════════════
 
 #define AppName      "SecureVault"
-#define AppVersion   "1.0.1"
+#define AppVersion   "1.0.2"
 #define AppPublisher "SecureVault"
 #define AppExeName   "PasswordManager.exe"
 
@@ -30,6 +30,7 @@ Compression=lzma2/ultra64
 SolidCompression=yes
 WizardStyle=modern
 UninstallDisplayIcon={app}\{#AppExeName}
+SetupIconFile={#AppSourceDir}\appicon.ico
 MinVersion=10.0.19041
 
 [Languages]

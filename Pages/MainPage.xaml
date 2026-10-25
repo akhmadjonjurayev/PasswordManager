@@ -21,12 +21,7 @@
 
             <VerticalStackLayout Grid.Row="0" Padding="16,20,17,8" Spacing="18">
                 <HorizontalStackLayout Spacing="10" Padding="4,0">
-                    <Border WidthRequest="32" HeightRequest="32" StrokeThickness="0"
-                            StrokeShape="RoundRectangle 9"
-                            BackgroundColor="{DynamicResource Accent}">
-                        <Label Style="{StaticResource Glyph}" Text="&#xEA18;" FontSize="16"
-                               TextColor="{DynamicResource OnAccent}" />
-                    </Border>
+                    <Image Source="logo.png" WidthRequest="32" HeightRequest="32" />
                     <Label Text="SecureVault" FontFamily="{StaticResource DisplayFont}"
                            FontSize="17" FontAttributes="Bold" VerticalOptions="Center" />
                 </HorizontalStackLayout>

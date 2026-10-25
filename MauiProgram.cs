@@ -23,6 +23,11 @@ public static class MauiProgram
                 var appWindow = window.AppWindow;
                 ThemeService.AttachWindow(appWindow);
 
+                // Title bar + taskbar icon (the .ico is copied next to the exe)
+                var iconPath = Path.Combine(AppContext.BaseDirectory, "appicon.ico");
+                if (File.Exists(iconPath))
+                    appWindow.SetIcon(iconPath);
+
                 // MAUI sizes and shows the window after this callback, which would undo an
                 // early Maximize(). So maximize once the launch work has run (queued), and again
                 // on first activation in case the window only got focus later.

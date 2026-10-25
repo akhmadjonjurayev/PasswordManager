@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="128" height="128" viewBox="0 0 1024 1024">
+  <!-- In-app brand tile (same artwork as the app icon, full bleed) -->
+  <rect width="1024" height="1024" rx="232" fill="#4F46E5"/>
+  <path d="M512 176 L780 268 L780 506 C780 680 668 800 512 856 C356 800 244 680 244 506 L244 268 Z" fill="#FFFFFF"/>
+  <path d="M512 176 L780 268 L780 506 C780 680 668 800 512 856 Z" fill="#E0E7FF"/>
+  <path d="M478 536 A76 76 0 1 1 546 536 L572 664 L452 664 Z" fill="#4F46E5"/>
+</svg>
