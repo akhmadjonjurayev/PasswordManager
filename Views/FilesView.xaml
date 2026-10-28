@@ -1,0 +1,137 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentView
+    x:Class="PasswordManager.Views.FilesView"
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:models="clr-namespace:PasswordManager.Models">
+
+    <Grid RowDefinitions="Auto,Auto,*" RowSpacing="20" Padding="32,28,32,0" BackgroundColor="Transparent">
+        <!-- Files can be dropped anywhere on the section -->
+        <Grid.GestureRecognizers>
+            <DropGestureRecognizer DragOver="OnDragOver" DragLeave="OnDragLeave" Drop="OnDrop" />
+        </Grid.GestureRecognizers>
+
+        <!-- Header -->
+        <Grid Grid.Row="0" ColumnDefinitions="*,Auto" ColumnSpacing="16">
+            <VerticalStackLayout VerticalOptions="Center" Spacing="2">
+                <Label Text="Shifrlangan fayllar" Style="{StaticResource Heading}" />
+                <Label x:Name="SubtitleLabel" Text="" Style="{StaticResource Subheading}" />
+            </VerticalStackLayout>
+            <Border Grid.Column="1" x:Name="SearchField"
+                    WidthRequest="340" HeightRequest="44" VerticalOptions="Center"
+                    BackgroundColor="{DynamicResource Surface}"
+                    Stroke="{DynamicResource Border}"
+                    StrokeShape="RoundRectangle 12"
+                    Padding="14,0,8,0">
+                <Grid ColumnDefinitions="Auto,*" ColumnSpacing="8">
+                    <Label Style="{StaticResource Glyph}" Text="&#xE721;" TextColor="{DynamicResource TextMuted}" />
+                    <Entry Grid.Column="1" x:Name="SearchEntry"
+                           Placeholder="Fayl nomi yoki izoh bo'yicha qidirish"
+                           TextChanged="OnSearch_Changed" />
+                </Grid>
+            </Border>
+        </Grid>
+
+        <!-- Drop zone -->
+        <Border Grid.Row="1" x:Name="DropZone"
+                BackgroundColor="{DynamicResource Surface}"
+                Stroke="{DynamicResource BorderStrong}"
+                StrokeThickness="1.5"
+                StrokeDashArray="6,4"
+                StrokeShape="RoundRectangle 16"
+                Padding="20,16">
+            <Grid ColumnDefinitions="Auto,*,Auto" ColumnSpacing="16">
+                <Border x:Name="DropTile" Style="{StaticResource Tile}" BackgroundColor="{DynamicResource AccentSoft}">
+                    <Label Style="{StaticResource Glyph}" Text="&#xE898;" FontSize="18" TextColor="{DynamicResource AccentOnSoft}" />
+                </Border>
+                <VerticalStackLayout Grid.Column="1" VerticalOptions="Center" Spacing="2">
+                    <Label x:Name="DropTitleLabel" Text="Faylni shu yerga tashlang yoki tanlang"
+                           FontSize="15" FontAttributes="Bold" />
+                    <Label x:Name="DropHintLabel"
+                           Text=".env, .pem, kalit va konfiguratsiya fayllari · 25 MB gacha · har biri AES-256-GCM bilan alohida shifrlanadi"
+                           FontSize="13" TextColor="{DynamicResource TextSecondary}" LineBreakMode="WordWrap" />
+                </VerticalStackLayout>
+                <Button Grid.Column="2" Text="Fayl tanlash" Style="{StaticResource SecondaryButton}"
+                        VerticalOptions="Center" Clicked="OnPick_Clicked" />
+                <ActivityIndicator Grid.Column="2" x:Name="BusyIndicator" IsVisible="False" IsRunning="False"
+                                   WidthRequest="28" HeightRequest="28" HorizontalOptions="Center" />
+            </Grid>
+        </Border>
+
+        <!-- Cards -->
+        <CollectionView Grid.Row="2"
+                        x:Name="FileList"
+                        Margin="-7,0,-7,0"
+                        SelectionMode="None">
+            <CollectionView.ItemsLayout>
+                <GridItemsLayout Orientation="Vertical" Span="3" />
+            </CollectionView.ItemsLayout>
+            <CollectionView.EmptyView>
+                <VerticalStackLayout HorizontalOptions="Center" VerticalOptions="Center" Spacing="8" Padding="0,48">
+                    <Label Style="{StaticResource Glyph}" Text="&#xE8A5;" FontSize="40" TextColor="{DynamicResource TextMuted}" />
+                    <Label x:Name="EmptyTitleLabel" Text="Hali fayl saqlanmagan" FontSize="16" FontAttributes="Bold"
+                           HorizontalOptions="Center" />
+                    <Label x:Name="EmptyHintLabel" Text="Masalan, loyihangizning .env faylini yuqoridagi zonaga tashlang"
+                           TextColor="{DynamicResource TextSecondary}" HorizontalOptions="Center" />
+                </VerticalStackLayout>
+            </CollectionView.EmptyView>
+            <CollectionView.ItemTemplate>
+                <DataTemplate x:DataType="models:FileCard">
+                    <Grid Padding="7">
+                        <Border BackgroundColor="{DynamicResource Surface}"
+                                Stroke="{Binding Stroke}"
+                                StrokeThickness="{Binding StrokeThickness}"
+                                StrokeShape="RoundRectangle 16"
+                                Padding="16">
+                            <Border.GestureRecognizers>
+                                <TapGestureRecognizer Tapped="OnCard_Tapped" CommandParameter="{Binding .}" />
+                            </Border.GestureRecognizers>
+                            <Grid RowDefinitions="Auto,Auto,Auto" RowSpacing="12">
+                                <Grid ColumnDefinitions="Auto,*">
+                                    <Border Style="{StaticResource Tile}" BackgroundColor="{Binding ToneBg}">
+                                        <Label Text="{Binding Badge}" TextColor="{Binding ToneFg}"
+                                               FontSize="11" FontAttributes="Bold" FontFamily="{StaticResource MonoFont}"
+                                               HorizontalOptions="Center" VerticalOptions="Center" />
+                                    </Border>
+                                    <Border Grid.Column="1"
+                                            HorizontalOptions="End" VerticalOptions="Start"
+                                            BackgroundColor="{DynamicResource SurfaceMuted}"
+                                            StrokeThickness="0" StrokeShape="RoundRectangle 11"
+                                            Padding="10,2">
+                                        <Label Text="{Binding SizeText}" FontSize="12" FontAttributes="Bold"
+                                               TextColor="{DynamicResource TextSecondary}" />
+                                    </Border>
+                                </Grid>
+                                <VerticalStackLayout Grid.Row="1" Spacing="0">
+                                    <Label Text="{Binding Name}" FontSize="15" FontAttributes="Bold"
+                                           FontFamily="{StaticResource DisplayFont}"
+                                           LineBreakMode="TailTruncation" />
+                                    <Label Text="{Binding Caption}" TextColor="{DynamicResource TextSecondary}"
+                                           LineBreakMode="TailTruncation" />
+                                </VerticalStackLayout>
+                                <VerticalStackLayout Grid.Row="2" Spacing="10">
+                                    <BoxView HeightRequest="1" Color="{DynamicResource SurfaceMuted}" />
+                                    <Grid ColumnDefinitions="Auto,*,Auto,Auto" ColumnSpacing="6">
+                                        <Label Style="{StaticResource Glyph}" Text="&#xE72E;" FontSize="12"
+                                               TextColor="{DynamicResource Success}" />
+                                        <Label Grid.Column="1" Text="Shifrlangan" FontSize="12" FontAttributes="Bold"
+                                               TextColor="{DynamicResource Success}" VerticalOptions="Center" />
+                                        <Button Grid.Column="2" Text="&#xE8C8;" Style="{StaticResource IconButton}"
+                                                BackgroundColor="{DynamicResource SurfaceAlt}"
+                                                IsVisible="{Binding IsTextual}"
+                                                CommandParameter="{Binding .}" Clicked="OnCopy_Clicked"
+                                                ToolTipProperties.Text="Tarkibni nusxalash" />
+                                        <Button Grid.Column="3" Text="&#xE896;" Style="{StaticResource IconButton}"
+                                                BackgroundColor="{DynamicResource SurfaceAlt}"
+                                                CommandParameter="{Binding .}" Clicked="OnSave_Clicked"
+                                                ToolTipProperties.Text="Diskka saqlash" />
+                                    </Grid>
+                                </VerticalStackLayout>
+                            </Grid>
+                        </Border>
+                    </Grid>
+                </DataTemplate>
+            </CollectionView.ItemTemplate>
+        </CollectionView>
+    </Grid>
+</ContentView>

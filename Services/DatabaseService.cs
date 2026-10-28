@@ -8,6 +8,9 @@ public class DatabaseService : IDisposable
     private readonly string _dbPath;
     private SqliteConnection? _conn;
 
+    /// <summary>Folder holding vault.db (and the encrypted file volume).</summary>
+    public string DataDirectory { get; }
+
     public DatabaseService()
     {
         var appData = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData);
@@ -18,6 +21,7 @@ public class DatabaseService : IDisposable
         if (!string.IsNullOrWhiteSpace(overrideDir)) dir = overrideDir;
 #endif
         Directory.CreateDirectory(dir);
+        DataDirectory = dir;
         _dbPath = Path.Combine(dir, "vault.db");
     }
 
@@ -74,6 +78,16 @@ public class DatabaseService : IDisposable
                 EncryptedNotes    TEXT,
                 CreatedAt         TEXT NOT NULL,
                 UpdatedAt         TEXT NOT NULL
+            );
+
+            CREATE TABLE IF NOT EXISTS Files (
+                Id            INTEGER PRIMARY KEY AUTOINCREMENT,
+                EncryptedName TEXT NOT NULL,
+                BlobId        TEXT NOT NULL UNIQUE,
+                SizeBytes     INTEGER NOT NULL,
+                EncryptedNote TEXT,
+                CreatedAt     TEXT NOT NULL,
+                UpdatedAt     TEXT NOT NULL
             );
             """;
 
@@ -406,6 +420,85 @@ public class DatabaseService : IDisposable
             });
         }
         return list;
+    }
+
+    // ─── Files (metadata only — content is in the volume) ──────────────────────
+
+    public async Task<List<SecureFile>> GetAllFilesAsync()
+    {
+        const string sql = """
+            SELECT Id, EncryptedName, BlobId, SizeBytes, EncryptedNote, CreatedAt, UpdatedAt
+            FROM Files ORDER BY UpdatedAt DESC
+            """;
+        using var cmd = new SqliteCommand(sql, _conn);
+        var list = new List<SecureFile>();
+        using var r = await cmd.ExecuteReaderAsync();
+        while (await r.ReadAsync())
+        {
+            list.Add(new SecureFile
+            {
+                Id            = r.GetInt32(0),
+                EncryptedName = r.GetString(1),
+                BlobId        = r.GetString(2),
+                SizeBytes     = r.GetInt64(3),
+                EncryptedNote = r.IsDBNull(4) ? null : r.GetString(4),
+                CreatedAt     = DateTime.Parse(r.GetString(5)),
+                UpdatedAt     = DateTime.Parse(r.GetString(6))
+            });
+        }
+        return list;
+    }
+
+    public async Task<List<string>> GetAllBlobIdsAsync()
+    {
+        using var cmd = new SqliteCommand("SELECT BlobId FROM Files", _conn);
+        var list = new List<string>();
+        using var r = await cmd.ExecuteReaderAsync();
+        while (await r.ReadAsync()) list.Add(r.GetString(0));
+        return list;
+    }
+
+    public async Task<int> AddFileAsync(SecureFile f)
+    {
+        const string sql = """
+            INSERT INTO Files (EncryptedName, BlobId, SizeBytes, EncryptedNote, CreatedAt, UpdatedAt)
+            VALUES (@n, @b, @s, @note, @ca, @ua);
+            SELECT last_insert_rowid();
+            """;
+        using var cmd = new SqliteCommand(sql, _conn);
+        BindFile(cmd, f);
+        var result = await cmd.ExecuteScalarAsync();
+        return Convert.ToInt32(result);
+    }
+
+    public async Task UpdateFileAsync(SecureFile f)
+    {
+        const string sql = """
+            UPDATE Files
+            SET EncryptedName=@n, BlobId=@b, SizeBytes=@s, EncryptedNote=@note, UpdatedAt=@ua
+            WHERE Id=@id
+            """;
+        using var cmd = new SqliteCommand(sql, _conn);
+        BindFile(cmd, f);
+        cmd.Parameters.AddWithValue("@id", f.Id);
+        await cmd.ExecuteNonQueryAsync();
+    }
+
+    public async Task DeleteFileAsync(int id)
+    {
+        using var cmd = new SqliteCommand("DELETE FROM Files WHERE Id=@id", _conn);
+        cmd.Parameters.AddWithValue("@id", id);
+        await cmd.ExecuteNonQueryAsync();
+    }
+
+    private static void BindFile(SqliteCommand cmd, SecureFile f)
+    {
+        cmd.Parameters.AddWithValue("@n",    f.EncryptedName);
+        cmd.Parameters.AddWithValue("@b",    f.BlobId);
+        cmd.Parameters.AddWithValue("@s",    f.SizeBytes);
+        cmd.Parameters.AddWithValue("@note", f.EncryptedNote ?? (object)DBNull.Value);
+        cmd.Parameters.AddWithValue("@ca",   f.CreatedAt.ToString("O"));
+        cmd.Parameters.AddWithValue("@ua",   f.UpdatedAt.ToString("O"));
     }
 
     public void Dispose() => _conn?.Dispose();

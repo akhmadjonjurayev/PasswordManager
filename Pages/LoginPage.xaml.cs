@@ -92,8 +92,8 @@ public partial class LoginPage : ContentPage
     {
         var firstName = FirstNameEntry.Text?.Trim() ?? "";
         var lastName = LastNameEntry.Text?.Trim() ?? "";
-        var password = SetupPasswordEntry.Text ?? "";
-        var confirm = ConfirmPasswordEntry.Text ?? "";
+        var password = await SettledTextAsync(SetupPasswordEntry);
+        var confirm = await SettledTextAsync(ConfirmPasswordEntry);
 
         if (string.IsNullOrEmpty(firstName) || string.IsNullOrEmpty(lastName))
         {
@@ -131,7 +131,7 @@ public partial class LoginPage : ContentPage
 
     private async Task Login()
     {
-        var password = LoginPasswordEntry.Text ?? "";
+        var password = await SettledTextAsync(LoginPasswordEntry);
         if (string.IsNullOrEmpty(password))
         {
             ShowError("Parolni kiriting.");
@@ -158,6 +158,33 @@ public partial class LoginPage : ContentPage
         _session.Login(profile.FullName, profile.Initials);
 
         GoToMain();
+    }
+
+    /// <summary>
+    /// On Windows, keystrokes typed quickly before Enter (password-manager auto-type, scripted input)
+    /// reach the password box after the Enter key, so reading right away gave an empty value.
+    /// Wait until the value stops changing (≈80 ms when it is already settled).
+    /// </summary>
+    private static async Task<string> SettledTextAsync(Entry entry)
+    {
+        string previous = CurrentText(entry);
+        for (int i = 0; i < 10; i++)
+        {
+            await Task.Delay(80);
+            string current = CurrentText(entry);
+            if (current == previous && current.Length > 0) return current;
+            previous = current;
+        }
+        return previous;
+    }
+
+    private static string CurrentText(Entry entry)
+    {
+#if WINDOWS
+        if (entry.Handler?.PlatformView is Microsoft.Maui.Platform.MauiPasswordTextBox box)
+            return box.Password ?? "";
+#endif
+        return entry.Text ?? "";
     }
 
     private void GoToMain()

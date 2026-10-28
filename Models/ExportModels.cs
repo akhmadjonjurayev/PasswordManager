@@ -14,6 +14,17 @@ public class ExportFile
 public class ExportPayload
 {
     [JsonPropertyName("entries")] public List<ExportEntry> Entries { get; set; } = [];
+    // Absent in backups made before files existed — import treats null as "no files"
+    [JsonPropertyName("files")]   public List<ExportFileEntry>? Files { get; set; }
+}
+
+public class ExportFileEntry
+{
+    [JsonPropertyName("name")]      public string  Name      { get; set; } = "";
+    [JsonPropertyName("note")]      public string? Note      { get; set; }
+    [JsonPropertyName("content")]   public string  Content   { get; set; } = "";   // base64
+    [JsonPropertyName("createdAt")] public string  CreatedAt { get; set; } = "";
+    [JsonPropertyName("updatedAt")] public string  UpdatedAt { get; set; } = "";
 }
 
 public class ExportEntry

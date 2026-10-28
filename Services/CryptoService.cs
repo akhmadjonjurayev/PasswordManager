@@ -92,6 +92,65 @@ public class CryptoService
         return Encoding.UTF8.GetString(plain);
     }
 
+    // ─── Files (volume blobs) ───────────────────────────────────────────────────
+    // AES-256-GCM with a sub-key derived from the vault key (HKDF-SHA256), so blobs are
+    // authenticated: a modified or swapped .svf file fails to decrypt instead of yielding garbage.
+    // Blob layout: "SVF1" (4) | nonce (12) | tag (16) | ciphertext. The blob id is bound as AAD.
+
+    private static readonly byte[] FileMagic = "SVF1"u8.ToArray();
+    private const int GcmNonceSize = 12;
+    private const int GcmTagSize = 16;
+
+    public byte[] EncryptFile(ReadOnlySpan<byte> plain, string blobId)
+    {
+        var key = DeriveFileKey();
+        try
+        {
+            var blob = new byte[FileMagic.Length + GcmNonceSize + GcmTagSize + plain.Length];
+            var span = blob.AsSpan();
+            FileMagic.CopyTo(span);
+            var nonce  = span.Slice(FileMagic.Length, GcmNonceSize);
+            var tag    = span.Slice(FileMagic.Length + GcmNonceSize, GcmTagSize);
+            var cipher = span[(FileMagic.Length + GcmNonceSize + GcmTagSize)..];
+            RandomNumberGenerator.Fill(nonce);
+
+            using var gcm = new AesGcm(key, GcmTagSize);
+            gcm.Encrypt(nonce, plain, cipher, tag, Encoding.UTF8.GetBytes(blobId));
+            return blob;
+        }
+        finally { CryptographicOperations.ZeroMemory(key); }
+    }
+
+    /// <summary>Throws <see cref="CryptographicException"/> if the blob was altered or belongs to another id.</summary>
+    public byte[] DecryptFile(byte[] blob, string blobId)
+    {
+        int header = FileMagic.Length + GcmNonceSize + GcmTagSize;
+        if (blob.Length < header || !blob.AsSpan(0, FileMagic.Length).SequenceEqual(FileMagic))
+            throw new CryptographicException("Not a SecureVault file blob.");
+
+        var key = DeriveFileKey();
+        try
+        {
+            var span   = blob.AsSpan();
+            var nonce  = span.Slice(FileMagic.Length, GcmNonceSize);
+            var tag    = span.Slice(FileMagic.Length + GcmNonceSize, GcmTagSize);
+            var cipher = span[header..];
+            var plain  = new byte[cipher.Length];
+
+            using var gcm = new AesGcm(key, GcmTagSize);
+            gcm.Decrypt(nonce, cipher, tag, plain, Encoding.UTF8.GetBytes(blobId));
+            return plain;
+        }
+        finally { CryptographicOperations.ZeroMemory(key); }
+    }
+
+    private byte[] DeriveFileKey()
+    {
+        if (_encryptionKey == null) throw new InvalidOperationException("Encryption key not initialized.");
+        return HKDF.DeriveKey(HashAlgorithmName.SHA256, _encryptionKey, KeySize,
+                              info: "SecureVault file v1"u8.ToArray());
+    }
+
     // ─── Export / Import ────────────────────────────────────────────────────────
     // Encrypts arbitrary text with a standalone password (not the session key).
     // A fresh random salt is generated each time; pass it to DecryptWithPassword for decryption.

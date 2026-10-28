@@ -64,6 +64,18 @@
                         </Border.GestureRecognizers>
                     </Border>
 
+                    <Border x:Name="NavFiles" StrokeThickness="0" StrokeShape="RoundRectangle 10"
+                            Padding="12,0" HeightRequest="40">
+                        <Grid ColumnDefinitions="Auto,*,Auto" ColumnSpacing="12">
+                            <Label Style="{StaticResource Glyph}" Text="&#xE8A5;" />
+                            <Label Grid.Column="1" Text="Fayllar" VerticalOptions="Center" />
+                            <Label x:Name="NavFilesCount" Grid.Column="2" Text="" VerticalOptions="Center" />
+                        </Grid>
+                        <Border.GestureRecognizers>
+                            <TapGestureRecognizer Tapped="OnNavFiles_Tapped" />
+                        </Border.GestureRecognizers>
+                    </Border>
+
                     <Border x:Name="NavGenerator" StrokeThickness="0" StrokeShape="RoundRectangle 10"
                             Padding="12,0" HeightRequest="40">
                         <Grid ColumnDefinitions="Auto,*,Auto" ColumnSpacing="12">
@@ -360,6 +372,9 @@
                 </CollectionView>
             </Grid>
 
+            <!-- ── FILES ─────────────────────────────────────────── -->
+            <views:FilesView x:Name="FilesView" IsVisible="False" />
+
             <!-- ── GENERATOR ─────────────────────────────────────── -->
             <ScrollView x:Name="GeneratorView" IsVisible="False">
                 <VerticalStackLayout Padding="32,28,32,32" Spacing="20" MaximumWidthRequest="760" HorizontalOptions="Start">
@@ -501,7 +516,7 @@
 
                     <VerticalStackLayout Spacing="2">
                         <Label Text="Zaxira nusxa" Style="{StaticResource Heading}" />
-                        <Label Text="Parollarni shifrlangan .svault faylga chiqaring yoki fayldan qaytaring" Style="{StaticResource Subheading}" />
+                        <Label Text="Parollar va shifrlangan fayllarni bitta .svault faylga chiqaring yoki undan qaytaring" Style="{StaticResource Subheading}" />
                     </VerticalStackLayout>
 
                     <Grid x:Name="BackupGrid" ColumnDefinitions="*,*" ColumnSpacing="20">
@@ -515,7 +530,7 @@
                                     </Border>
                                     <VerticalStackLayout Grid.Column="1" VerticalOptions="Center">
                                         <Label Text="Eksport" FontSize="16" FontAttributes="Bold" />
-                                        <Label Text="Barcha parollar yangi parol bilan shifrlanib, Hujjatlar papkasiga saqlanadi"
+                                        <Label Text="Parollar va fayllar yangi parol bilan shifrlanib, Hujjatlar papkasiga saqlanadi"
                                                FontSize="13" TextColor="{DynamicResource TextSecondary}" />
                                     </VerticalStackLayout>
                                 </Grid>
@@ -545,7 +560,7 @@
                                     </Border>
                                     <VerticalStackLayout Grid.Column="1" VerticalOptions="Center">
                                         <Label Text="Import" FontSize="16" FontAttributes="Bold" />
-                                        <Label Text="Ilgari eksport qilingan .svault fayldan parollarni qaytarish"
+                                        <Label Text="Ilgari eksport qilingan .svault fayldan parollar va fayllarni qaytarish"
                                                FontSize="13" TextColor="{DynamicResource TextSecondary}" />
                                     </VerticalStackLayout>
                                 </Grid>
@@ -576,7 +591,7 @@
                                         StrokeShape="RoundRectangle 12" Padding="14,10">
                                     <Grid ColumnDefinitions="Auto,*" ColumnSpacing="10">
                                         <Label Style="{StaticResource Glyph}" Text="&#xE7BA;" TextColor="{DynamicResource WarningText}" />
-                                        <Label Grid.Column="1" Text="Import qilingan parollar mavjudlariga qo'shiladi, hech narsa o'chirilmaydi."
+                                        <Label Grid.Column="1" Text="Import qilingan parol va fayllar mavjudlariga qo'shiladi, hech narsa o'chirilmaydi."
                                                FontSize="13" TextColor="{DynamicResource WarningText}" VerticalOptions="Center" />
                                     </Grid>
                                 </Border>
@@ -611,6 +626,7 @@
             <BoxView WidthRequest="1" HorizontalOptions="Start" Color="{DynamicResource Border}" ZIndex="1" />
             <views:PasswordDrawer x:Name="PasswordDrawer" IsVisible="False" />
             <views:ServerDrawer x:Name="ServerDrawer" IsVisible="False" />
+            <views:FileDrawer x:Name="FileDrawer" IsVisible="False" />
         </Grid>
     </Grid>
 

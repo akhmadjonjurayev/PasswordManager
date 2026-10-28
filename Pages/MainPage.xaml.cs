@@ -15,9 +15,10 @@ public partial class MainPage : ContentPage
     private readonly DatabaseService _db;
     private readonly CryptoService _crypto;
     private readonly SessionService _session;
+    private readonly FileVaultService _files;
     private readonly IServiceProvider _services;
 
-    private enum NavSection { Passwords, Servers, Generator, Backup }
+    private enum NavSection { Passwords, Servers, Files, Generator, Backup }
     private NavSection _currentSection = NavSection.Passwords;
 
     // Sidebar items: border → its labels, plus which ones are highlighted (hover skips those)
@@ -43,15 +44,20 @@ public partial class MainPage : ContentPage
     private bool _useUpper = true, _useLower = true, _useDigits = true, _useSymbols;
     private string _generatedPassword = "";
 
+    // Files
+    private int _fileCount;
+
     private bool _initialized;
     private int _toastVersion;
 
-    public MainPage(DatabaseService db, CryptoService crypto, SessionService session, IServiceProvider services)
+    public MainPage(DatabaseService db, CryptoService crypto, SessionService session,
+                    FileVaultService files, IServiceProvider services)
     {
         InitializeComponent();
         _db = db;
         _crypto = crypto;
         _session = session;
+        _files = files;
         _services = services;
 
         _session.SessionExpired += OnSessionExpired;
@@ -63,8 +69,17 @@ public partial class MainPage : ContentPage
         FieldFocus.Attach(ExportPasswordEntry, ExportPasswordField);
         FieldFocus.Attach(ImportPasswordEntry, ImportPasswordField);
 
-        foreach (var nav in new[] { NavPasswords, NavServers, NavGenerator, NavBackup })
+        foreach (var nav in new[] { NavPasswords, NavServers, NavFiles, NavGenerator, NavBackup })
             RegisterNav(nav);
+
+        FilesView.Initialize(files, session);
+        FilesView.FileSelected += async (_, card) => await ShowFileDrawerAsync(card);
+        FilesView.Notify       += (_, msg) => ShowToast(msg);
+        FilesView.FilesChanged += (_, _) => UpdateFileCount(FilesView.Count);
+        FileDrawer.CloseRequested  += (_, _) => CloseDrawer();
+        FileDrawer.EditRequested   += async (_, file) => await OpenEditFileAsync(file);
+        FileDrawer.DeleteRequested += async (_, file) => await DeleteFileAsync(file);
+        FileDrawer.Notify          += (_, msg) => ShowToast(msg);
 
         PasswordDrawer.CloseRequested  += (_, _) => CloseDrawer();
         PasswordDrawer.EditRequested   += async (_, entry) => await OpenEditPasswordAsync(entry);
@@ -93,6 +108,8 @@ public partial class MainPage : ContentPage
             _initialized = true;
             _currentFolderId = null;
             SetNavActive(NavSection.Passwords);
+            // Blobs left behind by an interrupted write / delete
+            try { await _files.CleanupOrphansAsync(); } catch { /* not critical */ }
         }
 
         await RefreshCurrentSectionAsync();
@@ -112,6 +129,9 @@ public partial class MainPage : ContentPage
             case NavSection.Servers:
                 await LoadServersAsync();
                 break;
+            case NavSection.Files:
+                await LoadFilesAsync();
+                break;
         }
     }
 
@@ -128,6 +148,7 @@ public partial class MainPage : ContentPage
         ThemeService.Changed -= OnThemeChanged;
         PasswordDrawer.Clear();
         ServerDrawer.Clear();
+        FileDrawer.Clear();
         _crypto.ClearKey();
         _session.Logout();
         if (Application.Current is App app) app.NavigateToLogin();
@@ -147,6 +168,7 @@ public partial class MainPage : ContentPage
         ApplyPasswordFilter();
         _serverCards = _allServers.Select(BuildServerCard).ToList();
         ApplyServerFilter();
+        FilesView.RebuildCards();
     }
 
     private void UpdateThemeButton()
@@ -167,6 +189,13 @@ public partial class MainPage : ContentPage
         _session.ResetActivity();
         SetNavActive(NavSection.Servers);
         await LoadServersAsync();
+    }
+
+    private async void OnNavFiles_Tapped(object? sender, TappedEventArgs e)
+    {
+        _session.ResetActivity();
+        SetNavActive(NavSection.Files);
+        await LoadFilesAsync();
     }
 
     private void OnNavGenerator_Tapped(object? sender, TappedEventArgs e)
@@ -191,10 +220,16 @@ public partial class MainPage : ContentPage
         _currentSection = section;
         PasswordsView.IsVisible = section == NavSection.Passwords;
         ServersView.IsVisible   = section == NavSection.Servers;
+        FilesView.IsVisible     = section == NavSection.Files;
         GeneratorView.IsVisible = section == NavSection.Generator;
         BackupView.IsVisible    = section == NavSection.Backup;
 
-        PrimaryActionButton.Text = section == NavSection.Servers ? "Yangi server" : "Yangi parol";
+        PrimaryActionButton.Text = section switch
+        {
+            NavSection.Servers => "Yangi server",
+            NavSection.Files   => "Fayl qo'shish",
+            _                  => "Yangi parol"
+        };
         UpdateNavHighlight();
     }
 
@@ -203,6 +238,7 @@ public partial class MainPage : ContentPage
         bool passwords = _currentSection == NavSection.Passwords;
         HighlightNav(NavPasswords, passwords && _currentFolderId == null);
         HighlightNav(NavServers,   _currentSection == NavSection.Servers);
+        HighlightNav(NavFiles,     _currentSection == NavSection.Files);
         HighlightNav(NavGenerator, _currentSection == NavSection.Generator);
         HighlightNav(NavBackup,    _currentSection == NavSection.Backup);
 
@@ -441,6 +477,7 @@ public partial class MainPage : ContentPage
         _allEntries = await _db.GetAllAsync();
         _folders = await _db.GetFoldersAsync();
         _allServers = await _db.GetAllServersAsync();
+        _fileCount = (await _files.GetAllAsync()).Count;
 
         if (_currentFolderId.HasValue && _folders.All(f => f.Id != _currentFolderId.Value))
             _currentFolderId = null;
@@ -504,6 +541,7 @@ public partial class MainPage : ContentPage
     {
         NavPasswordsCount.Text = _allEntries.Count.ToString();
         NavServersCount.Text = _allServers.Count.ToString();
+        NavFilesCount.Text = _fileCount.ToString();
         StatTotalLabel.Text = _allEntries.Count.ToString();
         StatServersLabel.Text = _allServers.Count.ToString();
 
@@ -574,6 +612,7 @@ public partial class MainPage : ContentPage
     private void ShowPasswordDrawer(PasswordEntry entry)
     {
         ServerDrawer.IsVisible = false;
+        FileDrawer.IsVisible = false;
         PasswordDrawer.IsVisible = true;
         DrawerHost.IsVisible = true;
         PasswordDrawer.Show(entry, FolderName(entry.FolderId), _crypto);
@@ -584,13 +623,16 @@ public partial class MainPage : ContentPage
         DrawerHost.IsVisible = false;
         PasswordDrawer.IsVisible = false;
         ServerDrawer.IsVisible = false;
+        FileDrawer.IsVisible = false;
         PasswordDrawer.Clear();
         ServerDrawer.Clear();
+        FileDrawer.Clear();
 
         _selectedPasswordId = null;
         _selectedServerId = null;
         foreach (var c in _allCards) c.IsSelected = false;
         foreach (var c in _serverCards) c.IsSelected = false;
+        FilesView.SetSelected(null);
     }
 
     private async void OnCopyLogin_Clicked(object? sender, EventArgs e)
@@ -627,6 +669,11 @@ public partial class MainPage : ContentPage
         if (_currentSection == NavSection.Servers)
         {
             await OpenEditServerAsync(null);
+            return;
+        }
+        if (_currentSection == NavSection.Files)
+        {
+            await FilesView.PickAndAddAsync();
             return;
         }
         if (_currentSection != NavSection.Passwords)
@@ -738,6 +785,7 @@ public partial class MainPage : ContentPage
     private void ShowServerDrawer(ServerEntry server)
     {
         PasswordDrawer.IsVisible = false;
+        FileDrawer.IsVisible = false;
         ServerDrawer.IsVisible = true;
         DrawerHost.IsVisible = true;
         ServerDrawer.Show(server, _crypto);
@@ -795,6 +843,81 @@ public partial class MainPage : ContentPage
         CloseDrawer();
         await LoadServersAsync();
         ShowToast($"«{server.Name}» o'chirildi");
+    }
+
+    // ─── Files ────────────────────────────────────────────────────────────────
+
+    private async Task LoadFilesAsync()
+    {
+        await FilesView.ReloadAsync();
+        UpdateFileCount(FilesView.Count);
+
+        // Keep the drawer in sync (e.g. after an edit renamed or replaced the file)
+        if (FileDrawer.IsVisible && FileDrawer.FileId is int id)
+        {
+            var card = FilesView.Find(id);
+            if (card == null) CloseDrawer();
+            else
+            {
+                FilesView.SetSelected(id);
+                await ShowFileDrawerAsync(card);
+            }
+        }
+    }
+
+    private void UpdateFileCount(int count)
+    {
+        _fileCount = count;
+        NavFilesCount.Text = count.ToString();
+    }
+
+    private async Task ShowFileDrawerAsync(FileCard card)
+    {
+        PasswordDrawer.IsVisible = false;
+        ServerDrawer.IsVisible = false;
+        FileDrawer.IsVisible = true;
+        DrawerHost.IsVisible = true;
+        await FileDrawer.ShowAsync(card, _files);
+    }
+
+    private async Task OpenEditFileAsync(SecureFile file)
+    {
+        _session.ResetActivity();
+        try
+        {
+            var page = _services.GetRequiredService<EditFilePage>();
+            page.Configure(file, async () =>
+            {
+                await LoadFilesAsync();
+                ShowToast("Fayl yangilandi");
+            });
+            await Navigation.PushModalAsync(page);
+        }
+        catch (Exception ex) { await DisplayAlertAsync("Xato", ex.Message, "OK"); }
+    }
+
+    private async Task DeleteFileAsync(SecureFile file)
+    {
+        _session.ResetActivity();
+        var name = FilesView.Find(file.Id)?.Name ?? "Fayl";
+        bool confirm = await DisplayAlertAsync(
+            "Faylni o'chirish",
+            $"«{name}» ombordan butunlay o'chiriladi (shifrlangan nusxasi ham). Davom etasizmi?",
+            "O'chirish", "Bekor qilish");
+        if (!confirm) return;
+
+        try
+        {
+            await _files.DeleteAsync(file);
+        }
+        catch (Exception ex)
+        {
+            await DisplayAlertAsync("Xato", ex.Message, "OK");
+            return;
+        }
+        CloseDrawer();
+        await LoadFilesAsync();
+        ShowToast($"«{name}» o'chirildi");
     }
 
     // ─── Generator ────────────────────────────────────────────────────────────
@@ -949,8 +1072,21 @@ public partial class MainPage : ContentPage
                     Phone       = en.EncryptedPhone    != null ? _crypto.Decrypt(en.EncryptedPhone)    : null,
                     CreatedAt   = en.CreatedAt.ToString("O"),
                     UpdatedAt   = en.UpdatedAt.ToString("O")
-                }).ToList()
+                }).ToList(),
+                Files = []
             };
+
+            foreach (var f in await _files.GetAllAsync())
+            {
+                payload.Files.Add(new ExportFileEntry
+                {
+                    Name      = _files.DecryptName(f),
+                    Note      = _files.DecryptNote(f),
+                    Content   = Convert.ToBase64String(await _files.ReadAsync(f)),
+                    CreatedAt = f.CreatedAt.ToString("O"),
+                    UpdatedAt = f.UpdatedAt.ToString("O")
+                });
+            }
 
             var innerJson = JsonSerializer.Serialize(payload, JsonOpts);
             var encrypted = _crypto.EncryptWithPassword(innerJson, exportPw, out string salt);
@@ -971,7 +1107,7 @@ public partial class MainPage : ContentPage
             await File.WriteAllTextAsync(path, json, System.Text.Encoding.UTF8);
 
             ExportPasswordEntry.Text = "";
-            SetStatus(ExportStatusLabel, $"{payload.Entries.Count} ta parol saqlandi:\n{path}", true);
+            SetStatus(ExportStatusLabel, $"{payload.Entries.Count} ta parol va {payload.Files.Count} ta fayl saqlandi:\n{path}", true);
         }
         catch (Exception ex)
         {
@@ -1076,11 +1212,21 @@ public partial class MainPage : ContentPage
                 count++;
             }
 
+            int fileCount = 0;
+            foreach (var f in payload.Files ?? [])
+            {
+                if (string.IsNullOrEmpty(f.Name)) continue;
+                var created = DateTime.TryParse(f.CreatedAt, out var fdt) ? fdt : now;
+                await _files.AddAsync(f.Name, Convert.FromBase64String(f.Content), f.Note, created);
+                fileCount++;
+            }
+
             ImportPasswordEntry.Text = "";
             ImportFilePathEntry.Text = "";
             _allEntries = await _db.GetAllAsync();
             NavPasswordsCount.Text = _allEntries.Count.ToString();
-            SetStatus(ImportStatusLabel, $"{count} ta parol import qilindi.", true);
+            UpdateFileCount((await _files.GetAllAsync()).Count);
+            SetStatus(ImportStatusLabel, $"{count} ta parol va {fileCount} ta fayl import qilindi.", true);
         }
         catch (Exception ex)
         {

@@ -49,6 +49,20 @@ public sealed class PasswordCard : CardBase
     public Brush StrengthBrush => new SolidColorBrush(StrengthColor);
 }
 
+public sealed class FileCard : CardBase
+{
+    public required SecureFile File { get; init; }
+    public string Name { get; init; } = "";
+    public string Note { get; init; } = "";
+    public string Badge { get; init; } = "";
+    public string SizeText => FileVaultService.FormatSize(File.SizeBytes);
+    /// <summary>Second line on the card: the note, or when the file was last changed.</summary>
+    public string Caption => string.IsNullOrWhiteSpace(Note)
+        ? $"{File.UpdatedAt.ToLocalTime():dd.MM.yyyy} da yangilangan"
+        : Note.ReplaceLineEndings(" ");
+    public bool IsTextual { get; init; }
+}
+
 public sealed class ServerCard : CardBase
 {
     public required ServerEntry Server { get; init; }

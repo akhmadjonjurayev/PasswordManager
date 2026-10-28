@@ -51,11 +51,13 @@ public static class MauiProgram
         builder.Services.AddSingleton<CryptoService>();
         builder.Services.AddSingleton<DatabaseService>();
         builder.Services.AddSingleton<SessionService>();
+        builder.Services.AddSingleton<FileVaultService>();
 
         builder.Services.AddTransient<LoginPage>();
         builder.Services.AddTransient<MainPage>();
         builder.Services.AddTransient<AddEditPasswordPage>();
         builder.Services.AddTransient<AddEditServerPage>();
+        builder.Services.AddTransient<EditFilePage>();
 
         return builder.Build();
     }

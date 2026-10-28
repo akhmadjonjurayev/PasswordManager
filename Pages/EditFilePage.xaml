@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage
+    x:Class="PasswordManager.Pages.EditFilePage"
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    BackgroundColor="{DynamicResource Scrim}"
+    NavigationPage.HasNavigationBar="False">
+
+    <Grid>
+        <Border Style="{StaticResource Card}"
+                WidthRequest="560"
+                HorizontalOptions="Center" VerticalOptions="Center"
+                Margin="24" Padding="0"
+                StrokeShape="RoundRectangle 20">
+            <Border.Shadow>
+                <Shadow Brush="Black" Opacity="0.22" Radius="40" Offset="0,12" />
+            </Border.Shadow>
+
+            <Grid RowDefinitions="Auto,*,Auto">
+
+                <Grid Grid.Row="0" ColumnDefinitions="Auto,*,Auto" ColumnSpacing="14" Padding="28,24,20,12">
+                    <Border Style="{StaticResource Tile}" BackgroundColor="{DynamicResource AccentSoft}">
+                        <Label Style="{StaticResource Glyph}" Text="&#xE8A5;" FontSize="18" TextColor="{DynamicResource AccentOnSoft}" />
+                    </Border>
+                    <VerticalStackLayout Grid.Column="1" VerticalOptions="Center">
+                        <Label Text="Faylni tahrirlash" FontSize="20" FontAttributes="Bold"
+                               FontFamily="{StaticResource DisplayFont}" />
+                        <Label Text="Nomi va izohi ham shifrlangan holda saqlanadi" FontSize="13"
+                               TextColor="{DynamicResource TextSecondary}" />
+                    </VerticalStackLayout>
+                    <Button Grid.Column="2" Text="&#xE711;" Style="{StaticResource IconButton}"
+                            VerticalOptions="Start" Clicked="OnCancel_Clicked" ToolTipProperties.Text="Yopish" />
+                </Grid>
+
+                <ScrollView Grid.Row="1">
+                    <VerticalStackLayout Padding="28,8,28,8" Spacing="16">
+
+                        <VerticalStackLayout Spacing="0">
+                            <Label Text="Fayl nomi *" Style="{StaticResource FieldLabel}" />
+                            <Border x:Name="NameField" Style="{StaticResource Field}">
+                                <Entry x:Name="NameEntry" FontFamily="{StaticResource MonoFont}" Placeholder=".env" />
+                            </Border>
+                        </VerticalStackLayout>
+
+                        <VerticalStackLayout Spacing="0">
+                            <Label Text="Izoh" Style="{StaticResource FieldLabel}" />
+                            <Border x:Name="NoteField" Style="{StaticResource Field}" Padding="10,6">
+                                <Editor x:Name="NoteEditor"
+                                        Placeholder="Masalan: production serveri uchun, 2026-yil oktabr"
+                                        MinimumHeightRequest="72" AutoSize="TextChanges" />
+                            </Border>
+                        </VerticalStackLayout>
+
+                        <VerticalStackLayout Spacing="0">
+                            <Label Text="Tarkib" Style="{StaticResource FieldLabel}" />
+                            <Border Style="{StaticResource Field}" Padding="14,10,8,10">
+                                <Grid ColumnDefinitions="Auto,*,Auto" ColumnSpacing="12">
+                                    <Label Style="{StaticResource Glyph}" Text="&#xE72E;" TextColor="{DynamicResource Success}" />
+                                    <VerticalStackLayout Grid.Column="1" VerticalOptions="Center">
+                                        <Label x:Name="ContentTitleLabel" FontAttributes="Bold" />
+                                        <Label x:Name="ContentHintLabel" FontSize="12" TextColor="{DynamicResource TextSecondary}" />
+                                    </VerticalStackLayout>
+                                    <Button Grid.Column="2" Text="Almashtirish" Style="{StaticResource SecondaryButton}"
+                                            HeightRequest="38" Padding="14,0" Clicked="OnReplace_Clicked" />
+                                </Grid>
+                            </Border>
+                        </VerticalStackLayout>
+
+                        <Border x:Name="ErrorBox" IsVisible="False"
+                                BackgroundColor="{DynamicResource DangerSoft}" Stroke="{DynamicResource DangerBorder}"
+                                StrokeShape="RoundRectangle 12" Padding="14,10">
+                            <HorizontalStackLayout Spacing="10">
+                                <Label Style="{StaticResource Glyph}" Text="&#xE7BA;" TextColor="{DynamicResource Danger}" />
+                                <Label x:Name="ErrorLabel" Text="" FontAttributes="Bold" TextColor="{DynamicResource Danger}" VerticalOptions="Center" />
+                            </HorizontalStackLayout>
+                        </Border>
+                    </VerticalStackLayout>
+                </ScrollView>
+
+                <Grid Grid.Row="2" ColumnDefinitions="*,Auto,Auto" ColumnSpacing="10" Padding="28,16,28,24">
+                    <BoxView Grid.ColumnSpan="3" HeightRequest="1" VerticalOptions="Start" Margin="-28,-16,-28,0"
+                             Color="{DynamicResource Border}" />
+                    <Label Text="* majburiy maydon" FontSize="12" TextColor="{DynamicResource TextMuted}" VerticalOptions="Center" />
+                    <Button Grid.Column="1" Text="Bekor qilish" Style="{StaticResource SecondaryButton}" Clicked="OnCancel_Clicked" />
+                    <Button Grid.Column="2" x:Name="SaveButton" Text="Saqlash" Style="{StaticResource PrimaryButton}"
+                            MinimumWidthRequest="120" Clicked="OnSave_Clicked" />
+                </Grid>
+            </Grid>
+        </Border>
+
+        <Grid x:Name="LoadingOverlay" IsVisible="False" BackgroundColor="{DynamicResource Scrim}">
+            <ActivityIndicator IsRunning="True" WidthRequest="48" HeightRequest="48"
+                               HorizontalOptions="Center" VerticalOptions="Center" />
+        </Grid>
+    </Grid>
+</ContentPage>
